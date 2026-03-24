@@ -4,21 +4,17 @@ import plotly.express as px
 from datetime import datetime
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import io
 
 st.set_page_config(page_title="Philip 短影音分析系統", layout="wide")
 
-# =========================
-# 🔥 你的設定（已幫你填好）
-# =========================
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKOspk1Ev6WEzdSGWWxNgDtfywFnayuER5OBUs5a20BmbiYVyUAiKcyFNCMM6VgKDAacVKRPu6pww/pub?output=csv"
 BASE_URL = "https://video-dashboard-xxx.streamlit.app"
 LINE_ID = "@135rt"
 IG_ID = "@philip42"
 
-# =========================
-# 🔥 讀資料
-# =========================
 @st.cache_data(ttl=300)
 def load_data():
     df = pd.read_csv(GOOGLE_SHEET_CSV_URL)
@@ -41,9 +37,6 @@ def load_data():
 
 df = load_data()
 
-# =========================
-# URL 客戶
-# =========================
 query_params = st.query_params
 url_client = query_params.get("client", None)
 
@@ -54,9 +47,6 @@ if url_client and url_client in clients:
 else:
     selected_client = clients[0]
 
-# =========================
-# Sidebar
-# =========================
 st.sidebar.title("客戶選擇")
 
 selected_client = st.sidebar.selectbox(
@@ -69,9 +59,6 @@ st.query_params["client"] = selected_client
 
 df = df[df["client"] == selected_client].copy()
 
-# =========================
-# KPI
-# =========================
 st.title(f"📊 {selected_client}｜短影音分析報告")
 
 total_views = int(df["views"].sum())
@@ -87,20 +74,13 @@ col4.metric("新增粉絲", f"{total_followers:,}")
 
 st.divider()
 
-# =========================
-# 圖表
-# =========================
 st.subheader("📈 觀看趨勢")
 fig = px.line(df, x="date", y="views", color="platform")
 st.plotly_chart(fig, width="stretch")
 
 st.divider()
 
-# =========================
-# TOP影片
-# =========================
 st.subheader("🔥 爆款影片 TOP 3")
-
 top3 = df.sort_values(by="views", ascending=False).head(3)
 
 for i, row in enumerate(top3.itertuples(), 1):
@@ -108,17 +88,14 @@ for i, row in enumerate(top3.itertuples(), 1):
 
 st.divider()
 
-# =========================
-# AI 分析
-# =========================
 best_video = top3.iloc[0]["title"]
 best_views = int(top3.iloc[0]["views"])
 best_platform = df.groupby("platform")["views"].sum().idxmax()
 best_category = df.groupby("category")["views"].sum().idxmax()
 
 ai_summary = f"""
-最佳影片：{best_video}（{best_views:,}觀看）  
-最佳平台：{best_platform}  
+最佳影片：{best_video}（{best_views:,}觀看）
+最佳平台：{best_platform}
 最佳類型：{best_category}
 """
 
@@ -127,44 +104,42 @@ st.info(ai_summary)
 
 st.subheader("🎯 下週建議")
 st.success("""
-1. 延伸爆款影片做系列  
-2. 強化開頭3秒  
-3. 增加CTA引導  
-4. 放大高表現內容  
+1. 延伸爆款影片做系列
+2. 強化開頭3秒
+3. 增加CTA引導
+4. 放大高表現內容
 """)
 
 st.divider()
 
-# =========================
-# 💰 成交區
-# =========================
 st.subheader("🚀 合作方案")
 
-col1, col2, col3 = st.columns(3)
-
-with col1:
+c1, c2, c3 = st.columns(3)
+with c1:
     st.markdown("### 📄 單次分析")
     st.write("NT$ 3,000")
-
-with col2:
+with c2:
     st.markdown("### 📅 月顧問")
     st.write("NT$ 8,000")
-
-with col3:
+with c3:
     st.markdown("### 🎬 代操")
     st.write("NT$ 20,000 起")
 
 st.divider()
 
-# =========================
-# 📄 PDF報告
-# =========================
 def create_pdf():
     buffer = io.BytesIO()
+
+    pdfmetrics.registerFont(TTFont("NotoSansTC", "NotoSansTC-VariableFont_wght.ttf"))
+
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
-    content = []
 
+    styles["Title"].fontName = "NotoSansTC"
+    styles["Normal"].fontName = "NotoSansTC"
+    styles["Heading2"].fontName = "NotoSansTC"
+
+    content = []
     content.append(Paragraph(f"{selected_client} 短影音分析報告", styles["Title"]))
     content.append(Spacer(1, 12))
     content.append(Paragraph(f"日期：{datetime.today().strftime('%Y-%m-%d')}", styles["Normal"]))
@@ -178,7 +153,7 @@ def create_pdf():
     content.append(Spacer(1, 12))
 
     content.append(Paragraph("【AI分析】", styles["Heading2"]))
-    content.append(Paragraph(ai_summary, styles["Normal"]))
+    content.append(Paragraph(ai_summary.replace("\n", "<br/>"), styles["Normal"]))
     content.append(Spacer(1, 12))
 
     content.append(Paragraph("【聯絡方式】", styles["Heading2"]))
@@ -200,9 +175,6 @@ st.download_button(
 
 st.divider()
 
-# =========================
-# 🔗 專屬連結
-# =========================
 full_url = f"{BASE_URL}/?client={selected_client}"
 
 st.subheader("🔗 客戶專屬報表")
@@ -210,21 +182,14 @@ st.code(full_url)
 
 st.divider()
 
-# =========================
-# 📩 聯絡
-# =========================
 st.subheader("📩 聯絡我")
-
 st.warning(f"""
-LINE：{LINE_ID}  
-IG：{IG_ID}  
+LINE：{LINE_ID}
+IG：{IG_ID}
 👉 想讓短影音變現，直接聯絡
 """)
 
 st.divider()
 
-# =========================
-# 原始資料
-# =========================
 st.subheader("📋 原始資料")
 st.dataframe(df, width="stretch")
