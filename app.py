@@ -13,6 +13,11 @@ REPORT_TITLE = "短影音內容成效分析報告"
 AUTHOR_NAME = "ZiYi Media Lab"
 SERVICE_TYPE = "內容分析顧問版"
 
+CONTACT_NAME = "梓逸"
+CONTACT_LINE = "@your_line_id"
+CONTACT_INSTAGRAM = "@your_instagram"
+CONTACT_EMAIL = "your_email@example.com"
+
 # =========================
 # 讀取資料
 # =========================
@@ -194,26 +199,64 @@ st.success("""
 # 顧問服務方案
 # =========================
 st.markdown("## 💼 顧問服務方案")
+
+plan1, plan2, plan3 = st.columns(3)
+
+with plan1:
+    st.markdown("### 📄 單次分析報告")
+    st.write("適合想先了解帳號狀況的品牌")
+    st.write("- 數據盤點")
+    st.write("- 爆款分析")
+    st.write("- 成長建議")
+    st.write("**NT$ 3,000 / 次**")
+
+with plan2:
+    st.markdown("### 📅 每月內容顧問")
+    st.write("適合穩定經營短影音的品牌")
+    st.write("- 每月分析報告")
+    st.write("- 題材建議")
+    st.write("- 成長策略")
+    st.write("**NT$ 8,000 / 月**")
+
+with plan3:
+    st.markdown("### 🎬 短影音代操")
+    st.write("適合想直接放大流量與轉單的品牌")
+    st.write("- 腳本規劃")
+    st.write("- 內容策略")
+    st.write("- 代操優化")
+    st.write("**NT$ 20,000 起 / 月**")
+
+st.divider()
+
+# =========================
+# 成交 CTA 區
+# =========================
+st.markdown("## 🚀 下一步合作方式")
 st.warning("""
-🎯 如果你希望把數據轉成實際營收，這裡是我們可以協助的：
-
-✔ 每週短影音策略規劃  
-✔ 爆款腳本設計（30秒成交型內容）  
-✔ 廣告投放優化（放大爆款）  
-✔ 私訊轉單流程設計  
-✔ 品牌內容成長顧問  
-
-👉 適合：想穩定出單、放大品牌流量的商家
+如果你希望把短影音變成穩定流量與訂單，現在就可以開始合作。
+我們可以依照你的品牌需求，提供：
+- 單次分析
+- 每月顧問
+- 長期代操
 """)
 
-st.markdown("### 📩 合作方式")
-st.success("""
-📌 單次分析報告  
-📌 每月內容顧問  
-📌 短影音代操（含腳本＋剪輯）  
+contact_col1, contact_col2 = st.columns(2)
 
-👉 歡迎私訊或聯絡合作
-""")
+with contact_col1:
+    st.markdown("### 📩 聯絡方式")
+    st.write(f"**聯絡人：** {CONTACT_NAME}")
+    st.write(f"**LINE：** {CONTACT_LINE}")
+    st.write(f"**Instagram：** {CONTACT_INSTAGRAM}")
+    st.write(f"**Email：** {CONTACT_EMAIL}")
+
+with contact_col2:
+    st.markdown("### ✅ 適合合作對象")
+    st.write("- 想提升短影音流量的品牌")
+    st.write("- 想把內容變成成交工具的商家")
+    st.write("- 想建立自媒體帶貨系統的團隊")
+    st.write("- 想做數據化內容經營的公司")
+
+st.success("👉 看完這份報告後，若你想要我幫你做專屬版本，歡迎直接聯絡。")
 
 st.divider()
 
