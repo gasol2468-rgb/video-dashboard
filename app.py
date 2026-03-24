@@ -3,13 +3,13 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
-st.set_page_config(page_title="短影音分析儀表板", layout="wide")
+st.set_page_config(page_title="短影音內容成效分析報告", layout="wide")
 
 # =========================
-# 客戶資料設定
+# 基本設定
 # =========================
 CLIENT_NAME = "梨山聚鑫製茶廠"
-REPORT_NAME = "短影音內容成效分析報告"
+REPORT_TITLE = "短影音內容成效分析報告"
 AUTHOR_NAME = "ZiYi Media Lab"
 SERVICE_TYPE = "內容分析顧問版"
 
@@ -19,29 +19,29 @@ SERVICE_TYPE = "內容分析顧問版"
 df = pd.read_csv("videos.csv")
 df["date"] = pd.to_datetime(df["date"])
 
-# 若有這些欄位就用，沒有就自動補
-if "platform" not in df.columns:
-    df["platform"] = "Instagram"
-
-if "format" not in df.columns:
-    df["format"] = "Reels"
-
-if "category" not in df.columns:
-    df["category"] = "知識"
-
-if "likes" not in df.columns:
-    df["likes"] = 0
-
-if "comments" not in df.columns:
-    df["comments"] = 0
+# 如果缺欄位就自動補
+defaults = {
+    "platform": "Instagram",
+    "format": "Reels",
+    "category": "知識",
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "saves": 0,
+    "watch_time_seconds": 20,
+    "followers_gained": 0,
+}
+for col, default_value in defaults.items():
+    if col not in df.columns:
+        df[col] = default_value
 
 # =========================
 # 側邊欄篩選
 # =========================
 st.sidebar.title("篩選條件")
 
-start_date = st.sidebar.date_input("開始日期", df["date"].min())
-end_date = st.sidebar.date_input("結束日期", df["date"].max())
+start_date = st.sidebar.date_input("開始日期", df["date"].min().date())
+end_date = st.sidebar.date_input("結束日期", df["date"].max().date())
 
 platform_options = ["全部"] + sorted(df["platform"].dropna().unique().tolist())
 format_options = ["全部"] + sorted(df["format"].dropna().unique().tolist())
@@ -55,8 +55,8 @@ selected_category = st.sidebar.selectbox("影片分類", category_options)
 # 篩選資料
 # =========================
 filtered_df = df[
-    (df["date"] >= pd.to_datetime(start_date)) &
-    (df["date"] <= pd.to_datetime(end_date))
+    (df["date"].dt.date >= start_date) &
+    (df["date"].dt.date <= end_date)
 ].copy()
 
 if selected_platform != "全部":
@@ -68,38 +68,46 @@ if selected_format != "全部":
 if selected_category != "全部":
     filtered_df = filtered_df[filtered_df["category"] == selected_category]
 
-# 空資料保護
 if filtered_df.empty:
-    st.title("📊 短影音內容分析儀表板")
+    st.title(f"📊 {CLIENT_NAME}｜{REPORT_TITLE}")
     st.warning("目前篩選條件下沒有資料，請調整左側條件。")
     st.stop()
 
 # =========================
 # 計算欄位
 # =========================
-filtered_df["engagement_count"] = filtered_df["likes"] + filtered_df["comments"]
+if "prev_views" not in filtered_df.columns:
+    filtered_df["prev_views"] = filtered_df["views"].shift(1).fillna(filtered_df["views"])
+
+filtered_df["engagement_count"] = (
+    filtered_df["likes"] + filtered_df["comments"] + filtered_df["shares"] + filtered_df["saves"]
+)
+
 filtered_df["engagement_rate"] = (
     filtered_df["engagement_count"] / filtered_df["views"] * 100
 ).round(1)
 
-filtered_df["growth"] = filtered_df["views"].pct_change().fillna(0)
-filtered_df["growth_percent"] = (filtered_df["growth"] * 100).round(1)
+filtered_df["growth_value"] = filtered_df["views"] - filtered_df["prev_views"]
+filtered_df["growth_percent"] = (
+    (filtered_df["growth_value"] / filtered_df["prev_views"].replace(0, 1)) * 100
+).round(1)
 
-# 模擬新增粉絲 / 平均觀看時長
+# =========================
+# KPI
+# =========================
 total_views = int(filtered_df["views"].sum())
 total_likes = int(filtered_df["likes"].sum())
 total_comments = int(filtered_df["comments"].sum())
-total_videos = int(len(filtered_df))
-followers = int(total_comments // 2)
-avg_watch = round(filtered_df["views"].mean() / 100, 1)
-avg_engagement = round(filtered_df["engagement_rate"].mean(), 1)
+total_followers = int(filtered_df["followers_gained"].sum())
+avg_watch_time = round(filtered_df["watch_time_seconds"].mean(), 1)
+avg_engagement_rate = round(filtered_df["engagement_rate"].mean(), 1)
 
 today = datetime.today().strftime("%Y-%m-%d")
 
 # =========================
-# 頁首：客戶報告版
+# 報告抬頭
 # =========================
-st.title(f"📊 {CLIENT_NAME}｜{REPORT_NAME}")
+st.title(f"📊 {CLIENT_NAME}｜{REPORT_TITLE}")
 st.caption(f"製作單位：{AUTHOR_NAME}｜方案類型：{SERVICE_TYPE}")
 
 st.markdown("## 🧾 客戶報告資訊")
@@ -109,7 +117,7 @@ info_col2.write(f"**報告日期：** {today}")
 info_col3.write(f"**分析區間：** {start_date} ～ {end_date}")
 
 st.markdown("""
-### 📌 本期分析目的
+## 📌 本期分析目的
 - 盤點短影音整體表現
 - 找出高觀看與高成長內容
 - 提出下一階段內容優化方向
@@ -122,22 +130,19 @@ st.divider()
 # KPI 區
 # =========================
 st.markdown("## 📊 重點數據總覽")
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-col1.metric("總觀看", f"{total_views:,}")
-col2.metric("總按讚", f"{total_likes:,}")
-col3.metric("總留言", f"{total_comments:,}")
-col4.metric("新增粉絲", f"{followers:,}")
-col5.metric("平均觀看時長", f"{avg_watch} 秒")
-col6.metric("平均互動率", f"{avg_engagement}%")
+k1, k2, k3, k4, k5, k6 = st.columns(6)
+k1.metric("總觀看", f"{total_views:,}")
+k2.metric("總按讚", f"{total_likes:,}")
+k3.metric("總留言", f"{total_comments:,}")
+k4.metric("新增粉絲", f"{total_followers:,}")
+k5.metric("平均觀看時長", f"{avg_watch_time} 秒")
+k6.metric("平均互動率", f"{avg_engagement_rate}%")
 
 st.divider()
 
 # =========================
 # 自動分析結論
 # =========================
-st.markdown("## 🧠 自動分析結論")
-
 best_platform = filtered_df.groupby("platform")["views"].sum().idxmax()
 best_category = filtered_df.groupby("category")["views"].sum().idxmax()
 
@@ -150,28 +155,16 @@ best_video_views = int(top_views.iloc[0]["views"])
 best_growth_video = top_growth.iloc[0]["title"]
 best_growth_rate = float(top_growth.iloc[0]["growth_percent"])
 
-best_engagement_video = filtered_df.sort_values(
-    by="engagement_rate", ascending=False
-).iloc[0]["title"]
+best_engagement_video = filtered_df.sort_values(by="engagement_rate", ascending=False).iloc[0]["title"]
 best_engagement_rate = float(
     filtered_df.sort_values(by="engagement_rate", ascending=False).iloc[0]["engagement_rate"]
 )
 
-st.success(
-    f"目前最佳平台為【{best_platform}】，最值得持續投入的內容類型為【{best_category}】。"
-)
-
-st.info(
-    f"本期最高觀看影片為【{best_video}】，累積觀看 {best_video_views:,}。"
-)
-
-st.warning(
-    f"成長最快影片為【{best_growth_video}】，成長率達 {best_growth_rate}% 。"
-)
-
-st.write(
-    f"互動率最高影片為 **{best_engagement_video}**，互動率為 **{best_engagement_rate}%**。"
-)
+st.markdown("## 🧠 自動分析結論")
+st.success(f"目前最佳平台為【{best_platform}】，最值得持續投入的內容類型為【{best_category}】。")
+st.info(f"本期最高觀看影片為【{best_video}】，累積觀看 {best_video_views:,}。")
+st.warning(f"成長最快影片為【{best_growth_video}】，成長率達 {best_growth_rate}% 。")
+st.write(f"互動率最高影片為 **{best_engagement_video}**，互動率為 **{best_engagement_rate}%**。")
 
 st.divider()
 
@@ -179,7 +172,6 @@ st.divider()
 # 成長策略建議
 # =========================
 st.markdown("## 📈 成長策略建議")
-
 st.info(f"""
 1️⃣ 建議持續加碼【{best_category}】類型內容，因為目前整體表現最佳。  
 2️⃣ 建議優先經營【{best_platform}】平台，作為主要流量來源。  
@@ -191,7 +183,6 @@ st.info(f"""
 # 商業變現建議
 # =========================
 st.markdown("## 💰 商業變現建議")
-
 st.success("""
 ✔ 建議可導入產品：高山茶、茶包、禮盒、節慶組合  
 ✔ 建議內容形式：開箱、教學、比較、情境故事  
@@ -199,19 +190,44 @@ st.success("""
 ✔ 建議對爆款影片進行小額廣告測試，放大自然流量成果  
 """)
 
+# =========================
+# 顧問服務方案
+# =========================
+st.markdown("## 💼 顧問服務方案")
+st.warning("""
+🎯 如果你希望把數據轉成實際營收，這裡是我們可以協助的：
+
+✔ 每週短影音策略規劃  
+✔ 爆款腳本設計（30秒成交型內容）  
+✔ 廣告投放優化（放大爆款）  
+✔ 私訊轉單流程設計  
+✔ 品牌內容成長顧問  
+
+👉 適合：想穩定出單、放大品牌流量的商家
+""")
+
+st.markdown("### 📩 合作方式")
+st.success("""
+📌 單次分析報告  
+📌 每月內容顧問  
+📌 短影音代操（含腳本＋剪輯）  
+
+👉 歡迎私訊或聯絡合作
+""")
+
 st.divider()
 
 # =========================
-# 左右排行榜
+# 排行榜
 # =========================
 left_col, right_col = st.columns(2)
 
 with left_col:
     st.markdown("## 🔥 爆款影片 TOP 3")
-    for i, row in top_views.iterrows():
-        medal = "🥇" if row["title"] == top_views.iloc[0]["title"] else "🥈" if row["title"] == top_views.iloc[1]["title"] else "🥉"
-        st.write(f"{medal} {row['title']}")
-        st.write(f"觀看數：{int(row['views']):,}")
+    medals = ["🥇", "🥈", "🥉"]
+    for idx, row in enumerate(top_views.itertuples(), start=0):
+        st.write(f"{medals[idx]} {row.title}")
+        st.write(f"觀看數：{int(row.views):,}")
         st.write("---")
 
 with right_col:
@@ -224,10 +240,9 @@ with right_col:
 st.divider()
 
 # =========================
-# 圖表區
+# 圖表
 # =========================
 st.markdown("## 📈 數據圖表分析")
-
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
@@ -242,9 +257,7 @@ with chart_col1:
     st.plotly_chart(fig_views, width="stretch")
 
 with chart_col2:
-    category_summary = (
-        filtered_df.groupby("category", as_index=False)["views"].sum()
-    )
+    category_summary = filtered_df.groupby("category", as_index=False)["views"].sum()
     fig_category = px.bar(
         category_summary,
         x="category",
@@ -256,7 +269,7 @@ with chart_col2:
 st.divider()
 
 # =========================
-# 原始資料表
+# 原始資料
 # =========================
 st.markdown("## 📋 原始資料明細")
 st.dataframe(filtered_df, width="stretch")
