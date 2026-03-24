@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from datetime import datetime
 
 st.set_page_config(page_title="短影音分析系統", layout="wide")
 
@@ -9,7 +10,7 @@ st.set_page_config(page_title="短影音分析系統", layout="wide")
 # =========================
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKOspk1Ev6WEzdSGWWxNgDtfywFnayuER5OBUs5a20BmbiYVyUAiKcyFNCMM6VgKDAacVKRPu6pww/pub?output=csv"
 
-# 👉 改成你的部署網址（很重要）
+# 👉 改成你的部署網址
 BASE_URL = "https://video-dashboard-xxx.streamlit.app"
 
 # =========================
@@ -61,7 +62,6 @@ selected_client = st.sidebar.selectbox(
     index=clients.index(selected_client) if selected_client in clients else 0
 )
 
-# 同步網址
 st.query_params["client"] = selected_client
 
 df = df[df["client"] == selected_client].copy()
@@ -132,23 +132,25 @@ best_views = int(top3.iloc[0]["views"])
 best_platform = df.groupby("platform")["views"].sum().idxmax()
 best_category = df.groupby("category")["views"].sum().idxmax()
 
-st.subheader("🤖 AI 分析結論")
+ai_summary = f"""
+本期表現最佳影片為【{best_video}】，觀看數達 {best_views:,}。
+目前最佳平台為【{best_platform}】。
+最佳內容類型為【{best_category}】。
+建議延伸高表現題材，並強化影片前3秒與CTA設計。
+"""
 
-st.info(f"""
-本期表現最佳影片為【{best_video}】，觀看數達 {best_views:,}  
-最佳平台為【{best_platform}】  
-最佳內容類型為【{best_category}】
-""")
+ai_actions = f"""
+1. 延伸【{best_video}】做系列內容
+2. 主力經營【{best_platform}】
+3. 強化【{best_category}】主題
+4. 增加留言與私訊引導
+"""
+
+st.subheader("🤖 AI 分析結論")
+st.info(ai_summary)
 
 st.subheader("🎯 下週建議")
-
-st.success(f"""
-1. 延伸【{best_video}】做系列內容  
-2. 主力經營【{best_platform}】  
-3. 強化【{best_category}】主題  
-4. 開頭3秒優化  
-5. 增加CTA引導留言
-""")
+st.success(ai_actions)
 
 st.divider()
 
@@ -158,9 +160,9 @@ st.divider()
 st.subheader("💰 商業變現建議")
 
 st.success("""
-✔ 導入商品（茶葉 / 禮盒 / 茶包）  
-✔ 做開箱 / 教學 / 比較內容  
-✔ 建立私訊成交流程  
+✔ 導入商品（茶葉 / 禮盒 / 茶包）
+✔ 做開箱 / 教學 / 比較內容
+✔ 建立私訊成交流程
 ✔ 放大爆款影片（投廣告）
 """)
 
@@ -188,15 +190,53 @@ with col3:
 st.divider()
 
 # =========================
-# 🔗 專屬連結（升級版）
+# 🔗 專屬連結
 # =========================
 st.subheader("🔗 客戶專屬報表")
 
 full_url = f"{BASE_URL}/?client={selected_client}"
 
 st.success("此連結為客戶專屬報表，可直接分享")
-
 st.code(full_url)
+
+st.divider()
+
+# =========================
+# 📄 可下載報告
+# =========================
+st.subheader("📄 下載客戶報告")
+
+report_text = f"""
+{selected_client}｜短影音分析報告
+報告日期：{datetime.today().strftime("%Y-%m-%d")}
+
+【重點數據】
+總觀看：{total_views:,}
+總按讚：{total_likes:,}
+總留言：{total_comments:,}
+新增粉絲：{total_followers:,}
+
+【AI 分析結論】
+{ai_summary}
+
+【下週建議】
+{ai_actions}
+
+【合作方案】
+單次分析：NT$ 3,000
+月顧問：NT$ 8,000
+代操服務：NT$ 20,000 起
+
+【專屬報表連結】
+{full_url}
+"""
+
+st.download_button(
+    label="⬇️ 下載文字版報告",
+    data=report_text,
+    file_name=f"{selected_client}_短影音分析報告.txt",
+    mime="text/plain"
+)
 
 st.divider()
 
@@ -206,8 +246,8 @@ st.divider()
 st.subheader("📩 聯絡我")
 
 st.warning("""
-LINE：@135rt  
-IG：@_philip42_  
+LINE：@135rt
+IG：@philip42
 👉 想讓短影音變現，直接聯絡
 """)
 
