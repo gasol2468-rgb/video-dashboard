@@ -569,6 +569,13 @@ if cache_df is None or cache_df.empty:
 override = load_json(OVERRIDE_PATH, {})
 df = apply_manual_type(cache_df, override)
 
+# 補回快取可能沒有的欄位
+df["views"] = pd.to_numeric(df["views"], errors="coerce").fillna(0)
+df["likes"] = pd.to_numeric(df["likes"], errors="coerce").fillna(0)
+df["comments"] = pd.to_numeric(df["comments"], errors="coerce").fillna(0)
+df["engagement"] = df["likes"] + df["comments"]
+df["engagement_rate"] = ((df["engagement"] / df["views"].replace(0, 1)) * 100).round(2)
+
 # =========================
 # 篩選
 # =========================
