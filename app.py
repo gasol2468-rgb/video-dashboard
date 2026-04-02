@@ -26,7 +26,7 @@ OVERRIDE_PATH = DATA_DIR / "content_override.json"
 NOTES_PATH = DATA_DIR / "creator_notes.json"
 
 # 你可以直接改這裡，或用 export 設環境變數 YOUTUBE_API_KEY = 
-""import os
+import os
 
 YOUTUBE_API_KEY = os.getenv("AIzaSyDGsiqVfahPsplQ2QAlVx-LNMSDUwCWnbc", "")
 YOUTUBE_CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID", "UCU6zSdI-U_WKMrAUt5JuePA")
