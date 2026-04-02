@@ -28,11 +28,11 @@ NOTES_PATH = DATA_DIR / "creator_notes.json"
 # 你可以直接改這裡，或用 export 設環境變數 YOUTUBE_API_KEY = 
 import os
 
-YOUTUBE_API_KEY = os.getenv("AIzaSyDGsiqVfahPsplQ2QAlVx-LNMSDUwCWnbc", "")
+import os
+
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
 YOUTUBE_CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID", "UCU6zSdI-U_WKMrAUt5JuePA")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
-
 # =========================
 # 樣式
 # =========================
