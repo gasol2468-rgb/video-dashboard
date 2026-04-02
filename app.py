@@ -1,6 +1,5 @@
 import os
 import json
-import re
 from pathlib import Path
 from datetime import datetime
 
@@ -25,15 +24,12 @@ DATA_DIR.mkdir(exist_ok=True)
 OVERRIDE_PATH = DATA_DIR / "content_override.json"
 NOTES_PATH = DATA_DIR / "creator_notes.json"
 
-# 你可以直接改這裡，或用 export 設環境變數 YOUTUBE_API_KEY = 
-import os
-
-import os
-
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
 YOUTUBE_CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID", "UCU6zSdI-U_WKMrAUt5JuePA")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
 client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
 # =========================
 # 樣式
 # =========================
@@ -45,7 +41,7 @@ html, body, [class*="css"] {
 
 .stApp {
     background:
-        radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 22%),
+        radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 22%),
         radial-gradient(circle at top right, rgba(16,185,129,0.08), transparent 18%),
         linear-gradient(180deg, #04070c 0%, #0b1220 45%, #0f172a 100%);
     color: #f8fafc;
@@ -268,7 +264,7 @@ div.stButton > button {
 """, unsafe_allow_html=True)
 
 # =========================
-# JSON 工具
+# 工具
 # =========================
 def load_json(path: Path, default):
     if not path.exists():
@@ -284,15 +280,27 @@ def load_json(path: Path, default):
 def save_json(path: Path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
+def load_notes():
+    data = load_json(NOTES_PATH, [])
+    return data if isinstance(data, list) else []
+
+def save_note(note_text: str):
+    notes = load_notes()
+    notes.insert(0, {
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "text": note_text.strip()
+    })
+    save_json(NOTES_PATH, notes)
+
 # =========================
-# YouTube 抓資料
+# YouTube
 # =========================
 def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -> pd.DataFrame:
-    if not api_key or api_key == "你的_YOUTUBE_API_KEY":
+    if not api_key:
         raise RuntimeError("請先設定 YOUTUBE_API_KEY")
 
     search_url = "https://www.googleapis.com/youtube/v3/search"
-    search_res = requests.get(
+    res = requests.get(
         search_url,
         params={
             "key": api_key,
@@ -304,7 +312,7 @@ def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -
         },
         timeout=30
     )
-    data = search_res.json()
+    data = res.json()
 
     if "error" in data:
         raise RuntimeError(json.dumps(data, ensure_ascii=False, indent=2))
@@ -313,19 +321,19 @@ def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -
     if not items:
         return pd.DataFrame(columns=["video_id", "title", "published_at", "views", "likes", "comments", "url"])
 
-    video_ids = []
     videos = []
+    video_ids = []
 
     for item in items:
         vid = item["id"]["videoId"]
         snippet = item["snippet"]
-        video_ids.append(vid)
         videos.append({
             "video_id": vid,
             "title": snippet.get("title", ""),
             "published_at": snippet.get("publishedAt", ""),
             "url": f"https://www.youtube.com/watch?v={vid}",
         })
+        video_ids.append(vid)
 
     stats_url = "https://www.googleapis.com/youtube/v3/videos"
     stats_res = requests.get(
@@ -345,10 +353,10 @@ def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -
     stats_map = {item["id"]: item.get("statistics", {}) for item in stats_data.get("items", [])}
 
     for v in videos:
-        stats = stats_map.get(v["video_id"], {})
-        v["views"] = int(stats.get("viewCount", 0))
-        v["likes"] = int(stats.get("likeCount", 0))
-        v["comments"] = int(stats.get("commentCount", 0))
+        s = stats_map.get(v["video_id"], {})
+        v["views"] = int(s.get("viewCount", 0))
+        v["likes"] = int(s.get("likeCount", 0))
+        v["comments"] = int(s.get("commentCount", 0))
 
     df = pd.DataFrame(videos)
     df["published_at"] = pd.to_datetime(df["published_at"], errors="coerce")
@@ -357,7 +365,7 @@ def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -
     return df
 
 # =========================
-# 分類
+# 類型判斷
 # =========================
 def infer_type(title: str) -> str:
     t = str(title).lower()
@@ -378,12 +386,53 @@ def apply_manual_type(df: pd.DataFrame, override: dict) -> pd.DataFrame:
     return df
 
 # =========================
-# AI
+# 最新影片分析
 # =========================
-def generate_next_idea_ai(df: pd.DataFrame):
-    if df.empty:
-        return "【下一支主題】\n目前沒有資料\n\n【開頭一句】\n目前沒有資料\n\n【拍法建議】\n先同步資料"
+def analyze_latest_video(df: pd.DataFrame) -> dict:
+    latest = df.sort_values("published_at", ascending=False).iloc[0]
+    rate = float(latest["engagement_rate"])
+    views = int(latest["views"])
+    likes = int(latest["likes"])
+    comments = int(latest["comments"])
+    content_type = latest["type"]
 
+    if rate >= 2:
+        verdict = "互動不錯，值得延伸"
+        reason = "這支影片的互動率不低，代表題材或切角有打中觀眾。"
+    elif views >= df["views"].median():
+        verdict = "觀看有潛力，但互動還能再補"
+        reason = "有基本觀看，但留言與按讚偏少，代表可以優化開頭或結尾互動。"
+    else:
+        verdict = "需要再調整"
+        reason = "目前這支的觀看與互動都偏普通，建議換更有話題的切角。"
+
+    if content_type == "教學型":
+        action = "下一支可以拍更短更直接的教學版，前3秒先講答案。"
+    elif content_type == "故事型":
+        action = "下一支建議延伸人物/茶園/品牌故事，用情緒感撐住。"
+    elif content_type == "推廣型":
+        action = "下一支不要只講產品，改成『為什麼值得買』的生活情境。"
+    elif content_type == "開箱型":
+        action = "下一支可以拍比較型內容，讓觀眾更容易留言。"
+    else:
+        action = "下一支建議用更明確的主題包裝，不要太散。"
+
+    return {
+        "title": latest["title"],
+        "views": views,
+        "likes": likes,
+        "comments": comments,
+        "rate": rate,
+        "type": content_type,
+        "verdict": verdict,
+        "reason": reason,
+        "action": action
+    }
+
+# =========================
+# AI 建議
+# =========================
+def generate_next_idea_ai(df: pd.DataFrame, latest_info: dict):
     best = df.sort_values(["engagement_rate", "views"], ascending=False).iloc[0]
 
     fallback = f"""【下一支主題】
@@ -393,7 +442,7 @@ def generate_next_idea_ai(df: pd.DataFrame):
 很多人以為這很普通，但真的懂的人一看就知道差很多。
 
 【拍法建議】
-延續這支影片的主題方向，用更生活感的切角拍，前3秒直接破題，中段補一個重點知識，結尾留一句讓人想留言的話。
+{latest_info['action']}
 """
 
     if not client:
@@ -402,13 +451,21 @@ def generate_next_idea_ai(df: pd.DataFrame):
     prompt = f"""
 你是台灣短影音內容企劃，擅長茶葉、生活感、帶一點銷售但不硬廣的內容。
 
+最新影片：
+標題：{latest_info['title']}
+觀看：{latest_info['views']}
+按讚：{latest_info['likes']}
+留言：{latest_info['comments']}
+互動率：{latest_info['rate']}%
+類型：{latest_info['type']}
+判斷：{latest_info['verdict']}
+觀察：{latest_info['reason']}
+
 目前表現最好的影片：
 標題：{best['title']}
 觀看：{int(best['views'])}
-按讚：{int(best['likes'])}
-留言：{int(best['comments'])}
 互動率：{best['engagement_rate']}%
-內容類型：{best['type']}
+類型：{best['type']}
 
 請幫我提供：
 1. 下一支最值得拍的主題
@@ -423,7 +480,6 @@ def generate_next_idea_ai(df: pd.DataFrame):
 【開頭一句】
 【拍法建議】
 """
-
     try:
         res = client.responses.create(
             model="gpt-4o-mini",
@@ -433,52 +489,40 @@ def generate_next_idea_ai(df: pd.DataFrame):
     except Exception:
         return fallback
 
-def generate_scripts_ai(topic: str):
-    fallback = f"""【版本一｜生活感】
+def generate_auto_script_ai(next_idea_text: str):
+    fallback = """【版本一｜生活感】
 【開頭】
-下班回到家，有時候不是想喝什麼厲害的，只是想讓自己慢下來。
+有時候不是想喝什麼厲害的，只是想讓自己慢下來。
 
 【腳本】
-今天這支想跟你分享 {topic}。
-很多人一開始會覺得，好像都差不多，
-但真的接觸之後，你會發現差別其實很明顯。
-不是講得多專業，而是喝下去那個感覺真的不一樣。
-這種內容最適合用生活感去拍，
-乾淨畫面、簡單旁白、讓人看得舒服。
+這支可以從生活情境切進去，
+先讓觀眾有感，再慢慢帶到茶的價值。
+不要急著講產品，先講感受。
 
 【結尾】
-你平常喝茶，是為了解渴，還是讓自己放鬆一下？
+你喝茶的時候，最在意的是味道，還是那個感覺？
 
 【版本二｜故事感】
 【開頭】
 你現在看到的不只是一杯茶，後面其實有很多故事。
 
 【腳本】
-{topic} 不是只有表面上那個味道而已。
-很多人喝茶只喝到第一層，
-但真的懂的人，會去看它從哪裡來、怎麼做、為什麼有這個味道。
-如果這支片你想拍得更有感，
-就不要急著介紹產品，
-先讓觀眾感受到這杯茶背後的情緒。
+從產地、人物、季節或一個細節開始講，
+讓觀眾先被情緒吸住，再把重點帶進去。
 
 【結尾】
-如果是你，你會想認識這杯茶背後的故事嗎？
+如果是你，你會想更認識這杯茶嗎？
 
 【版本三｜自然帶貨】
 【開頭】
 很多人都以為茶差不多，但真的喝到好的，你會回不去。
 
 【腳本】
-今天想很簡單跟你聊 {topic}。
-不是要硬賣你什麼，
-而是很多人真的喝過之後，才知道差別在哪。
-從入口、香氣，到後面那個回甘，
-其實都不是普通茶能做到的。
-如果你最近剛好在找一款更適合自己喝、也適合送人的茶，
-這個方向真的可以看一下。
+這支不要太硬賣，
+從生活中的需求切入，再講這杯茶為什麼不一樣。
 
 【結尾】
-你喜歡自己喝的，還是送禮也拿得出手的那種？
+你會想自己喝，還是拿來送人？
 """
     if not client:
         return fallback
@@ -486,12 +530,13 @@ def generate_scripts_ai(topic: str):
     prompt = f"""
 你是台灣短影音腳本高手，擅長茶葉內容。
 
-幫我寫 3 個版本：
+根據下面的影片建議，幫我寫 3 個版本：
 1. 生活感
 2. 故事感
 3. 自然帶貨
 
-主題：{topic}
+影片建議：
+{next_idea_text}
 
 要求：
 - 台灣口語
@@ -524,23 +569,6 @@ def generate_scripts_ai(topic: str):
         return res.output_text
     except Exception:
         return fallback
-
-# =========================
-# 筆記
-# =========================
-def load_notes():
-    data = load_json(NOTES_PATH, [])
-    if isinstance(data, list):
-        return data
-    return []
-
-def save_note(note_text: str):
-    notes = load_notes()
-    notes.insert(0, {
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "text": note_text.strip()
-    })
-    save_json(NOTES_PATH, notes)
 
 # =========================
 # 載入資料
@@ -582,6 +610,9 @@ if filtered_df.empty:
     st.stop()
 
 top_video = filtered_df.sort_values(["engagement_rate", "views"], ascending=False).iloc[0]
+latest_info = analyze_latest_video(filtered_df)
+next_idea = generate_next_idea_ai(filtered_df, latest_info)
+
 total_views = int(filtered_df["views"].sum())
 avg_rate = round(filtered_df["engagement_rate"].mean(), 2)
 
@@ -607,7 +638,7 @@ st.markdown("""
     <div class="hero-title">🎬 茶葉創作者總控台</div>
     <div class="hero-sub">
         這不是只有數字的 dashboard，<br>
-        而是幫你判斷：哪支值得延伸、哪類型比較會爆、下一支要拍什麼、腳本怎麼寫。
+        而是幫你判斷：最新影片表現、下一支拍什麼、怎麼拍、腳本怎麼寫。
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -653,22 +684,39 @@ with c4:
     """, unsafe_allow_html=True)
 
 # =========================
-# 摘要 + 推薦
+# 最新影片分析 + 下一支建議
 # =========================
-left, right = st.columns([1.05, 0.95])
+left, right = st.columns([1.02, 0.98])
 
 with left:
-    st.markdown('<div class="section-title">最近表現摘要</div>', unsafe_allow_html=True)
-    rank_df = filtered_df.sort_values("views", ascending=False).head(10)
-    st.markdown('<div class="panel">', unsafe_allow_html=True)
-    for _, row in rank_df.head(4).iterrows():
-        st.markdown(
-            f'<div class="list-item"><b>{row["title"]}</b><br>觀看 {int(row["views"]):,} ｜ 互動率 {row["engagement_rate"]}% ｜ 類型 {row["type"]}</div>',
-            unsafe_allow_html=True
-        )
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">最新影片分析</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="panel">
+        <div class="list-item"><b>最新影片：</b>{latest_info['title']}</div>
+        <div class="list-item"><b>類型：</b>{latest_info['type']}</div>
+        <div class="list-item"><b>觀看 / 按讚 / 留言：</b>{latest_info['views']:,} / {latest_info['likes']} / {latest_info['comments']}</div>
+        <div class="list-item"><b>互動率：</b>{latest_info['rate']}%</div>
+        <div class="list-item"><b>判斷：</b>{latest_info['verdict']}</div>
+        <div class="list-item"><b>原因：</b>{latest_info['reason']}</div>
+        <div class="list-item"><b>建議動作：</b>{latest_info['action']}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown('<div class="section-title">爆款候選 TOP 5</div>', unsafe_allow_html=True)
+with right:
+    st.markdown('<div class="section-title">下一支主題建議</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="reco-box"><div class="reco-title">AI recommendation</div><div class="reco-main">下一支最值得拍</div><div class="reco-sub">{next_idea.replace(chr(10), "<br>")}</div></div>',
+        unsafe_allow_html=True
+    )
+
+# =========================
+# 爆款候選 + 排行
+# =========================
+st.markdown('<div class="section-title">最近表現摘要</div>', unsafe_allow_html=True)
+
+sum_left, sum_right = st.columns(2)
+
+with sum_left:
     hot_df = filtered_df.sort_values(["engagement_rate", "views"], ascending=False).head(5).copy()
     hot_show = hot_df[["title", "views", "likes", "comments", "engagement_rate", "type"]].rename(
         columns={
@@ -680,15 +728,21 @@ with left:
             "type": "類型"
         }
     )
+    st.subheader("🔥 爆款候選 TOP 5")
     st.dataframe(hot_show, width="stretch", hide_index=True)
 
-with right:
-    st.markdown('<div class="section-title">AI 下一支建議</div>', unsafe_allow_html=True)
-    next_idea = generate_next_idea_ai(filtered_df)
-    st.markdown(
-        f'<div class="reco-box"><div class="reco-title">AI recommendation</div><div class="reco-main">下一支最值得拍</div><div class="reco-sub">{next_idea.replace(chr(10), "<br>")}</div></div>',
-        unsafe_allow_html=True
+with sum_right:
+    top_show = filtered_df.sort_values("views", ascending=False).head(10)[["title", "views", "likes", "comments", "type"]].rename(
+        columns={
+            "title": "影片標題",
+            "views": "觀看數",
+            "likes": "按讚數",
+            "comments": "留言數",
+            "type": "類型"
+        }
     )
+    st.subheader("🏆 觀看數排行榜 TOP 10")
+    st.dataframe(top_show, width="stretch", hide_index=True)
 
 # =========================
 # 圖表
@@ -743,25 +797,114 @@ if len(type_summary) > 0:
 
     with col_a:
         st.dataframe(type_summary.rename(columns={"type": "內容類型"}), width="stretch", hide_index=True)
-        st.subheader("📊 各內容類型平均觀看數")
-        st.bar_chart(type_summary.set_index("type")["平均觀看數"])
-
     with col_b:
         st.subheader("📊 各內容類型平均互動率")
         st.bar_chart(type_summary.set_index("type")["平均互動率"])
-else:
-    st.info("目前沒有可分析的內容類型資料")
 
 # =========================
-# AI 腳本
+# 自動腳本推薦
+# =========================
+st.markdown('<div class="section-title">自動腳本推薦</div>', unsafe_allow_html=True)
+
+if st.button("生成下一支自動腳本", width="stretch"):
+    auto_script = generate_auto_script_ai(next_idea)
+    st.markdown(f'<div class="panel" style="white-space:pre-wrap;line-height:1.9;">{auto_script}</div>', unsafe_allow_html=True)
+
+# =========================
+# 一般 AI 腳本
 # =========================
 st.markdown('<div class="section-title">AI 腳本</div>', unsafe_allow_html=True)
 
 topic = st.text_input("主題", value=top_video["title"])
 
+def generate_scripts_ai(topic: str):
+    fallback = f"""【版本一｜生活感】
+【開頭】
+很多人以為這很普通，但其實真正懂的人一看就知道差很多。
+
+【腳本】
+今天想跟你聊的是 {topic}。
+這種內容最適合從生活感切入，
+不要一開始就講得太硬，
+先讓觀眾感受到差異，再把重點帶進去。
+
+【結尾】
+你平常最在意茶的哪一點？
+
+【版本二｜故事感】
+【開頭】
+你現在看到的，不只是一杯茶，後面其實有很多故事。
+
+【腳本】
+{topic} 不只是表面上那個味道而已，
+它背後還有很多人不知道的細節。
+如果你想拍得更有感，
+就先講情緒，再講內容。
+
+【結尾】
+如果是你，你會想更認識這杯茶嗎？
+
+【版本三｜自然帶貨】
+【開頭】
+很多人都以為茶差不多，但真的喝到好的，你會回不去。
+
+【腳本】
+今天很簡單跟你聊 {topic}。
+不是要硬賣，
+而是很多人真的接觸之後才知道差別在哪。
+如果你最近剛好想找更適合自己喝、也適合送人的茶，
+這個方向真的可以看一下。
+
+【結尾】
+你會想自己喝，還是送人也拿得出手？
+"""
+    if not client:
+        return fallback
+
+    prompt = f"""
+你是台灣短影音腳本高手，擅長茶葉內容。
+
+幫我寫 3 個版本：
+1. 生活感
+2. 故事感
+3. 自然帶貨
+
+主題：{topic}
+
+要求：
+- 台灣口語
+- 不要太像廣告
+- 要有情緒
+- 真的能拍
+- 簡單清楚
+
+格式：
+【版本一｜生活感】
+【開頭】
+【腳本】
+【結尾】
+
+【版本二｜故事感】
+【開頭】
+【腳本】
+【結尾】
+
+【版本三｜自然帶貨】
+【開頭】
+【腳本】
+【結尾】
+"""
+    try:
+        res = client.responses.create(
+            model="gpt-4o-mini",
+            input=prompt
+        )
+        return res.output_text
+    except Exception:
+        return fallback
+
 if st.button("生成腳本", width="stretch"):
     result = generate_scripts_ai(topic)
-    st.markdown("### 🎬 腳本結果")
     st.markdown(f'<div class="panel" style="white-space:pre-wrap;line-height:1.9;">{result}</div>', unsafe_allow_html=True)
 
 # =========================
@@ -772,8 +915,7 @@ st.markdown('<div class="section-title">手動分類修正</div>', unsafe_allow_
 type_choices = ["教學型", "故事型", "推廣型", "開箱型", "其他"]
 edited_override = dict(override)
 
-edit_df = filtered_df.head(10).copy()
-for _, row in edit_df.iterrows():
+for _, row in filtered_df.head(10).iterrows():
     current_type = edited_override.get(row["video_id"], row["type"])
     idx = type_choices.index(current_type) if current_type in type_choices else 4
     new_type = st.selectbox(
@@ -828,7 +970,7 @@ with note_right:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# 原始資料表
+# 原始資料
 # =========================
 st.markdown('<div class="section-title">影片資料表</div>', unsafe_allow_html=True)
 
