@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
+CACHE_PATH = DATA_DIR / "youtube_cache.json"
 OVERRIDE_PATH = DATA_DIR / "content_override.json"
 NOTES_PATH = DATA_DIR / "creator_notes.json"
 
@@ -38,7 +39,6 @@ st.markdown("""
 html, body, [class*="css"] {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
 }
-
 .stApp {
     background:
         radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 22%),
@@ -46,13 +46,11 @@ html, body, [class*="css"] {
         linear-gradient(180deg, #04070c 0%, #0b1220 45%, #0f172a 100%);
     color: #f8fafc;
 }
-
 .block-container {
     max-width: 1280px;
     padding-top: 1.4rem;
     padding-bottom: 3rem;
 }
-
 .hero {
     background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
     border: 1px solid rgba(255,255,255,0.08);
@@ -60,11 +58,9 @@ html, body, [class*="css"] {
     padding: 34px;
     color: white;
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 24px 48px rgba(0,0,0,0.30);
     margin-bottom: 22px;
 }
-
 .hero-kicker {
     font-size: 12px;
     letter-spacing: 0.12em;
@@ -72,27 +68,23 @@ html, body, [class*="css"] {
     color: #bfdbfe;
     margin-bottom: 10px;
 }
-
 .hero-title {
     font-size: 40px;
     font-weight: 800;
     line-height: 1.2;
     margin-bottom: 12px;
 }
-
 .hero-sub {
     color: #dbeafe;
     font-size: 15px;
     line-height: 1.95;
 }
-
 .section-title {
     font-size: 24px;
     font-weight: 800;
     color: #f8fafc;
     margin: 10px 0 14px 0;
 }
-
 .metric-card {
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.08);
@@ -100,10 +92,7 @@ html, body, [class*="css"] {
     padding: 20px;
     min-height: 152px;
     box-shadow: 0 14px 28px rgba(0,0,0,0.22);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
 }
-
 .metric-label {
     font-size: 12px;
     letter-spacing: 0.08em;
@@ -111,21 +100,18 @@ html, body, [class*="css"] {
     color: #94a3b8;
     margin-bottom: 8px;
 }
-
 .metric-number {
     font-size: 30px;
     font-weight: 800;
     color: #ffffff;
     line-height: 1.1;
 }
-
 .metric-note {
     font-size: 14px;
     color: #cbd5e1;
     margin-top: 10px;
     line-height: 1.8;
 }
-
 .panel {
     background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%);
     color: #0f172a;
@@ -134,7 +120,6 @@ html, body, [class*="css"] {
     box-shadow: 0 16px 34px rgba(0,0,0,0.18);
     margin-bottom: 18px;
 }
-
 .dark-panel {
     background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 100%);
     color: #f8fafc;
@@ -144,7 +129,6 @@ html, body, [class*="css"] {
     box-shadow: 0 16px 34px rgba(0,0,0,0.22);
     margin-bottom: 18px;
 }
-
 .list-item {
     padding: 12px 0;
     border-bottom: 1px solid rgba(15,23,42,0.08);
@@ -154,17 +138,6 @@ html, body, [class*="css"] {
 .list-item:last-child {
     border-bottom: none;
 }
-
-.dark-list-item {
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    font-size: 15px;
-    line-height: 1.9;
-}
-.dark-list-item:last-child {
-    border-bottom: none;
-}
-
 .badge-green, .badge-yellow, .badge-red, .badge-blue {
     display: inline-block;
     padding: 7px 12px;
@@ -176,7 +149,6 @@ html, body, [class*="css"] {
 .badge-yellow { background: rgba(251,191,36,0.16); color: #fde68a; }
 .badge-red { background: rgba(248,113,113,0.16); color: #fecaca; }
 .badge-blue { background: rgba(96,165,250,0.16); color: #bfdbfe; }
-
 .reco-box {
     background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
     border: 1px solid rgba(255,255,255,0.08);
@@ -185,7 +157,6 @@ html, body, [class*="css"] {
     box-shadow: 0 20px 40px rgba(0,0,0,0.28);
     color: white;
 }
-
 .reco-title {
     font-size: 12px;
     letter-spacing: 0.10em;
@@ -193,46 +164,17 @@ html, body, [class*="css"] {
     color: #93c5fd;
     margin-bottom: 10px;
 }
-
 .reco-main {
     font-size: 26px;
     font-weight: 800;
     line-height: 1.55;
     margin-bottom: 12px;
 }
-
 .reco-sub {
     font-size: 15px;
     color: #e5e7eb;
     line-height: 1.95;
 }
-
-.script-card {
-    background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%);
-    border-radius: 22px;
-    padding: 18px;
-    box-shadow: 0 16px 28px rgba(0,0,0,0.16);
-    height: 100%;
-    color: #0f172a;
-}
-
-.script-version {
-    display: inline-block;
-    background: #dbeafe;
-    color: #1d4ed8;
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.script-body {
-    white-space: pre-wrap;
-    line-height: 1.9;
-    font-size: 14px;
-}
-
 .note-chip {
     display: inline-block;
     background: #e2e8f0;
@@ -242,19 +184,16 @@ html, body, [class*="css"] {
     font-size: 12px;
     margin-bottom: 10px;
 }
-
 div[data-testid="stDataFrame"] {
     background: rgba(255,255,255,0.96);
     border-radius: 18px;
     padding: 6px;
 }
-
 div[data-testid="stTextInput"] input,
 div[data-testid="stTextArea"] textarea,
 div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
     border-radius: 14px !important;
 }
-
 div.stButton > button {
     border-radius: 14px !important;
     height: 46px;
@@ -293,9 +232,30 @@ def save_note(note_text: str):
     save_json(NOTES_PATH, notes)
 
 # =========================
+# 快取
+# =========================
+def save_cache(df: pd.DataFrame):
+    payload = {
+        "saved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "rows": df.to_dict(orient="records")
+    }
+    save_json(CACHE_PATH, payload)
+
+def load_cache():
+    payload = load_json(CACHE_PATH, {})
+    rows = payload.get("rows", [])
+    saved_at = payload.get("saved_at", "")
+    if not rows:
+        return None, saved_at
+    df = pd.DataFrame(rows)
+    if "published_at" in df.columns:
+        df["published_at"] = pd.to_datetime(df["published_at"], errors="coerce")
+    return df, saved_at
+
+# =========================
 # YouTube
 # =========================
-def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -> pd.DataFrame:
+def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 12) -> pd.DataFrame:
     if not api_key:
         raise RuntimeError("請先設定 YOUTUBE_API_KEY")
 
@@ -365,7 +325,7 @@ def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 20) -
     return df
 
 # =========================
-# 類型判斷
+# 類型
 # =========================
 def infer_type(title: str) -> str:
     t = str(title).lower()
@@ -386,14 +346,12 @@ def apply_manual_type(df: pd.DataFrame, override: dict) -> pd.DataFrame:
     return df
 
 # =========================
-# 最新影片分析
+# 分析
 # =========================
 def analyze_latest_video(df: pd.DataFrame) -> dict:
     latest = df.sort_values("published_at", ascending=False).iloc[0]
     rate = float(latest["engagement_rate"])
     views = int(latest["views"])
-    likes = int(latest["likes"])
-    comments = int(latest["comments"])
     content_type = latest["type"]
 
     if rate >= 2:
@@ -411,7 +369,7 @@ def analyze_latest_video(df: pd.DataFrame) -> dict:
     elif content_type == "故事型":
         action = "下一支建議延伸人物/茶園/品牌故事，用情緒感撐住。"
     elif content_type == "推廣型":
-        action = "下一支不要只講產品，改成『為什麼值得買』的生活情境。"
+        action = "下一支不要只講產品，改成為什麼值得買的生活情境。"
     elif content_type == "開箱型":
         action = "下一支可以拍比較型內容，讓觀眾更容易留言。"
     else:
@@ -419,9 +377,9 @@ def analyze_latest_video(df: pd.DataFrame) -> dict:
 
     return {
         "title": latest["title"],
-        "views": views,
-        "likes": likes,
-        "comments": comments,
+        "views": int(latest["views"]),
+        "likes": int(latest["likes"]),
+        "comments": int(latest["comments"]),
         "rate": rate,
         "type": content_type,
         "verdict": verdict,
@@ -430,11 +388,10 @@ def analyze_latest_video(df: pd.DataFrame) -> dict:
     }
 
 # =========================
-# AI 建議
+# AI
 # =========================
 def generate_next_idea_ai(df: pd.DataFrame, latest_info: dict):
     best = df.sort_values(["engagement_rate", "views"], ascending=False).iloc[0]
-
     fallback = f"""【下一支主題】
 延伸「{best['title']}」這類型內容
 
@@ -444,7 +401,6 @@ def generate_next_idea_ai(df: pd.DataFrame, latest_info: dict):
 【拍法建議】
 {latest_info['action']}
 """
-
     if not client:
         return fallback
 
@@ -481,10 +437,7 @@ def generate_next_idea_ai(df: pd.DataFrame, latest_info: dict):
 【拍法建議】
 """
     try:
-        res = client.responses.create(
-            model="gpt-4o-mini",
-            input=prompt
-        )
+        res = client.responses.create(model="gpt-4o-mini", input=prompt)
         return res.output_text
     except Exception:
         return fallback
@@ -495,12 +448,11 @@ def generate_auto_script_ai(next_idea_text: str):
 有時候不是想喝什麼厲害的，只是想讓自己慢下來。
 
 【腳本】
-這支可以從生活情境切進去，
-先讓觀眾有感，再慢慢帶到茶的價值。
-不要急著講產品，先講感受。
+先從生活情境切進去，
+不要急著講產品，先讓觀眾有感。
 
 【結尾】
-你喝茶的時候，最在意的是味道，還是那個感覺？
+你喝茶最在意的是味道，還是那個感覺？
 
 【版本二｜故事感】
 【開頭】
@@ -508,7 +460,7 @@ def generate_auto_script_ai(next_idea_text: str):
 
 【腳本】
 從產地、人物、季節或一個細節開始講，
-讓觀眾先被情緒吸住，再把重點帶進去。
+先吸住情緒，再帶出重點。
 
 【結尾】
 如果是你，你會想更認識這杯茶嗎？
@@ -518,8 +470,7 @@ def generate_auto_script_ai(next_idea_text: str):
 很多人都以為茶差不多，但真的喝到好的，你會回不去。
 
 【腳本】
-這支不要太硬賣，
-從生活中的需求切入，再講這杯茶為什麼不一樣。
+從生活需求切入，再講這杯茶為什麼不一樣。
 
 【結尾】
 你會想自己喝，還是拿來送人？
@@ -562,42 +513,72 @@ def generate_auto_script_ai(next_idea_text: str):
 【結尾】
 """
     try:
-        res = client.responses.create(
-            model="gpt-4o-mini",
-            input=prompt
-        )
+        res = client.responses.create(model="gpt-4o-mini", input=prompt)
         return res.output_text
     except Exception:
         return fallback
 
 # =========================
+# 同步控制
+# =========================
+st.markdown("""
+<div class="hero">
+    <div class="hero-kicker">Tea Creator Control Center</div>
+    <div class="hero-title">🎬 茶葉創作者總控台</div>
+    <div class="hero-sub">
+        這版已改成省 quota 模式：<br>
+        平常先看快取資料，只有按同步才會打 YouTube API。
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+top_left, top_right = st.columns([1, 3])
+
+with top_left:
+    sync_now = st.button("同步最新 YouTube 資料", width="stretch")
+
+cache_df, cache_saved_at = load_cache()
+sync_error = None
+
+if sync_now:
+    try:
+        fresh_df = fetch_youtube_videos(YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID, max_results=12)
+        save_cache(fresh_df)
+        cache_df = fresh_df
+        cache_saved_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        st.success("同步完成，已更新快取資料")
+    except Exception as e:
+        sync_error = str(e)
+        st.error("同步失敗，已改用快取資料")
+        if cache_df is None:
+            st.code(sync_error)
+
+with top_right:
+    if cache_saved_at:
+        st.info(f"目前顯示的是快取資料。最近同步時間：{cache_saved_at}")
+    else:
+        st.warning("目前還沒有快取資料，請先按一次同步。")
+
+if cache_df is None or cache_df.empty:
+    st.warning("目前沒有可顯示的資料，請先按「同步最新 YouTube 資料」。")
+    st.stop()
+
+# =========================
 # 載入資料
 # =========================
 override = load_json(OVERRIDE_PATH, {})
-
-try:
-    raw_df = fetch_youtube_videos(YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID, max_results=20)
-except Exception as e:
-    st.error("YouTube API 讀取失敗")
-    st.code(str(e))
-    st.stop()
-
-if raw_df.empty:
-    st.warning("目前抓不到影片資料")
-    st.stop()
-
-df = apply_manual_type(raw_df, override)
+df = apply_manual_type(cache_df, override)
 
 # =========================
 # 篩選
 # =========================
 type_options = ["全部"] + sorted(df["type"].dropna().unique().tolist())
-top_bar_left, top_bar_right = st.columns([1, 3])
+f1, f2 = st.columns([1, 3])
 
-with top_bar_left:
+with f1:
     selected_type = st.selectbox("內容類型", type_options)
 
-with top_bar_right:
+with f2:
     min_views = st.slider("最低觀看門檻", 0, int(df["views"].max()), 0)
 
 filtered_df = df.copy()
@@ -628,20 +609,6 @@ else:
     status_badge = "badge-red"
     status_text = "需要調整"
     status_note = "建議先優化主題切角與前 3 秒。"
-
-# =========================
-# Hero
-# =========================
-st.markdown("""
-<div class="hero">
-    <div class="hero-kicker">Tea Creator Control Center</div>
-    <div class="hero-title">🎬 茶葉創作者總控台</div>
-    <div class="hero-sub">
-        這不是只有數字的 dashboard，<br>
-        而是幫你判斷：最新影片表現、下一支拍什麼、怎麼拍、腳本怎麼寫。
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
 # =========================
 # 指標卡
@@ -710,7 +677,7 @@ with right:
     )
 
 # =========================
-# 爆款候選 + 排行
+# 摘要
 # =========================
 st.markdown('<div class="section-title">最近表現摘要</div>', unsafe_allow_html=True)
 
@@ -794,7 +761,6 @@ if len(type_summary) > 0:
     type_summary["平均互動率"] = type_summary["平均互動率"].round(2)
 
     col_a, col_b = st.columns(2)
-
     with col_a:
         st.dataframe(type_summary.rename(columns={"type": "內容類型"}), width="stretch", hide_index=True)
     with col_b:
@@ -802,7 +768,7 @@ if len(type_summary) > 0:
         st.bar_chart(type_summary.set_index("type")["平均互動率"])
 
 # =========================
-# 自動腳本推薦
+# 自動腳本
 # =========================
 st.markdown('<div class="section-title">自動腳本推薦</div>', unsafe_allow_html=True)
 
@@ -811,107 +777,11 @@ if st.button("生成下一支自動腳本", width="stretch"):
     st.markdown(f'<div class="panel" style="white-space:pre-wrap;line-height:1.9;">{auto_script}</div>', unsafe_allow_html=True)
 
 # =========================
-# 一般 AI 腳本
-# =========================
-st.markdown('<div class="section-title">AI 腳本</div>', unsafe_allow_html=True)
-
-topic = st.text_input("主題", value=top_video["title"])
-
-def generate_scripts_ai(topic: str):
-    fallback = f"""【版本一｜生活感】
-【開頭】
-很多人以為這很普通，但其實真正懂的人一看就知道差很多。
-
-【腳本】
-今天想跟你聊的是 {topic}。
-這種內容最適合從生活感切入，
-不要一開始就講得太硬，
-先讓觀眾感受到差異，再把重點帶進去。
-
-【結尾】
-你平常最在意茶的哪一點？
-
-【版本二｜故事感】
-【開頭】
-你現在看到的，不只是一杯茶，後面其實有很多故事。
-
-【腳本】
-{topic} 不只是表面上那個味道而已，
-它背後還有很多人不知道的細節。
-如果你想拍得更有感，
-就先講情緒，再講內容。
-
-【結尾】
-如果是你，你會想更認識這杯茶嗎？
-
-【版本三｜自然帶貨】
-【開頭】
-很多人都以為茶差不多，但真的喝到好的，你會回不去。
-
-【腳本】
-今天很簡單跟你聊 {topic}。
-不是要硬賣，
-而是很多人真的接觸之後才知道差別在哪。
-如果你最近剛好想找更適合自己喝、也適合送人的茶，
-這個方向真的可以看一下。
-
-【結尾】
-你會想自己喝，還是送人也拿得出手？
-"""
-    if not client:
-        return fallback
-
-    prompt = f"""
-你是台灣短影音腳本高手，擅長茶葉內容。
-
-幫我寫 3 個版本：
-1. 生活感
-2. 故事感
-3. 自然帶貨
-
-主題：{topic}
-
-要求：
-- 台灣口語
-- 不要太像廣告
-- 要有情緒
-- 真的能拍
-- 簡單清楚
-
-格式：
-【版本一｜生活感】
-【開頭】
-【腳本】
-【結尾】
-
-【版本二｜故事感】
-【開頭】
-【腳本】
-【結尾】
-
-【版本三｜自然帶貨】
-【開頭】
-【腳本】
-【結尾】
-"""
-    try:
-        res = client.responses.create(
-            model="gpt-4o-mini",
-            input=prompt
-        )
-        return res.output_text
-    except Exception:
-        return fallback
-
-if st.button("生成腳本", width="stretch"):
-    result = generate_scripts_ai(topic)
-    st.markdown(f'<div class="panel" style="white-space:pre-wrap;line-height:1.9;">{result}</div>', unsafe_allow_html=True)
-
-# =========================
-# 手動分類修正
+# 手動分類
 # =========================
 st.markdown('<div class="section-title">手動分類修正</div>', unsafe_allow_html=True)
 
+override = load_json(OVERRIDE_PATH, {})
 type_choices = ["教學型", "故事型", "推廣型", "開箱型", "其他"]
 edited_override = dict(override)
 
@@ -970,7 +840,7 @@ with note_right:
     st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================
-# 原始資料
+# 原始資料表
 # =========================
 st.markdown('<div class="section-title">影片資料表</div>', unsafe_allow_html=True)
 
