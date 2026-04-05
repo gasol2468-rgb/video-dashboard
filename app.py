@@ -6,11 +6,14 @@ from datetime import datetime
 import pandas as pd
 import requests
 import streamlit as st
+from dotenv import load_dotenv
 from openai import OpenAI
 
 # =========================
 # 基本設定
 # =========================
+load_dotenv()
+
 st.set_page_config(
     page_title="茶葉創作者總控台",
     page_icon="🎬",
@@ -235,9 +238,15 @@ def save_note(note_text: str):
 # 快取
 # =========================
 def save_cache(df: pd.DataFrame):
+    df_to_save = df.copy()
+
+    for col in df_to_save.columns:
+        if pd.api.types.is_datetime64_any_dtype(df_to_save[col]):
+            df_to_save[col] = df_to_save[col].dt.strftime("%Y-%m-%d %H:%M:%S")
+
     payload = {
         "saved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "rows": df.to_dict(orient="records")
+        "rows": df_to_save.to_dict(orient="records")
     }
     save_json(CACHE_PATH, payload)
 
@@ -257,7 +266,7 @@ def load_cache():
 # =========================
 def fetch_youtube_videos(api_key: str, channel_id: str, max_results: int = 12) -> pd.DataFrame:
     if not api_key:
-        raise RuntimeError("請先設定 YOUTUBE_API_KEY")
+        raise RuntimeError("請先設定 YOUTUBE_API_KEY（目前沒有讀到）")
 
     search_url = "https://www.googleapis.com/youtube/v3/search"
     res = requests.get(
@@ -367,7 +376,7 @@ def analyze_latest_video(df: pd.DataFrame) -> dict:
     if content_type == "教學型":
         action = "下一支可以拍更短更直接的教學版，前3秒先講答案。"
     elif content_type == "故事型":
-        action = "下一支建議延伸人物/茶園/品牌故事，用情緒感撐住。"
+        action = "下一支建議延伸人物、茶園、品牌故事，用情緒感撐住。"
     elif content_type == "推廣型":
         action = "下一支不要只講產品，改成為什麼值得買的生活情境。"
     elif content_type == "開箱型":
@@ -538,26 +547,29 @@ with top_left:
     sync_now = st.button("同步最新 YouTube 資料", width="stretch")
 
 cache_df, cache_saved_at = load_cache()
-sync_error = None
 
 if sync_now:
-    try:
-        fresh_df = fetch_youtube_videos(YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID, max_results=12)
-        save_cache(fresh_df)
-        cache_df = fresh_df
-        cache_saved_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        st.success("同步完成，已更新快取資料")
-    except Exception as e:
-        sync_error = str(e)
-        st.error("同步失敗，已改用快取資料")
-        if cache_df is None:
-            st.code(sync_error)
+    with st.spinner("正在同步 YouTube 資料..."):
+        try:
+            fresh_df = fetch_youtube_videos(YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID, max_results=12)
+            save_cache(fresh_df)
+            cache_df = fresh_df
+            cache_saved_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            st.success("同步完成，已更新快取資料")
+        except Exception as e:
+            st.error("同步失敗，已改用快取資料")
+            st.code(str(e))
 
 with top_right:
     if cache_saved_at:
         st.info(f"目前顯示的是快取資料。最近同步時間：{cache_saved_at}")
     else:
         st.warning("目前還沒有快取資料，請先按一次同步。")
+
+with st.expander("檢查環境變數"):
+    st.write("YOUTUBE_API_KEY 是否有讀到：", bool(YOUTUBE_API_KEY))
+    st.write("YOUTUBE_CHANNEL_ID：", YOUTUBE_CHANNEL_ID)
+    st.write("OPENAI_API_KEY 是否有讀到：", bool(OPENAI_API_KEY))
 
 if cache_df is None or cache_df.empty:
     st.warning("目前沒有可顯示的資料，請先按「同步最新 YouTube 資料」。")
@@ -569,7 +581,6 @@ if cache_df is None or cache_df.empty:
 override = load_json(OVERRIDE_PATH, {})
 df = apply_manual_type(cache_df, override)
 
-# 補回快取可能沒有的欄位
 df["views"] = pd.to_numeric(df["views"], errors="coerce").fillna(0)
 df["likes"] = pd.to_numeric(df["likes"], errors="coerce").fillna(0)
 df["comments"] = pd.to_numeric(df["comments"], errors="coerce").fillna(0)
@@ -586,7 +597,7 @@ with f1:
     selected_type = st.selectbox("內容類型", type_options)
 
 with f2:
-    min_views = st.slider("最低觀看門檻", 0, int(df["views"].max()), 0)
+    min_views = st.slider("最低觀看門檻", 0, int(df["views"].max()) if len(df) > 0 else 0, 0)
 
 filtered_df = df.copy()
 if selected_type != "全部":
