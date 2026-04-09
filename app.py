@@ -64,6 +64,29 @@ html, body, [class*="css"] {
     mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.4) 80%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.4) 80%, transparent 100%);
 }
+/* ── Sidebar 全域覆蓋 ── */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0d1528 0%, #0a1020 100%) !important;
+    border-right: 1px solid rgba(99,102,241,0.2) !important;
+}
+section[data-testid="stSidebar"] * {
+    color: #e2e8f0 !important;
+}
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span {
+    color: #cbd5e1 !important;
+}
+section[data-testid="stSidebar"] input {
+    color: #f1f5f9 !important;
+    background: rgba(255,255,255,0.07) !important;
+    border-color: rgba(99,102,241,0.3) !important;
+}
+section[data-testid="stSidebar"] .stButton button {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    color: #fff !important;
+    border: none !important;
+}
 .block-container {
     max-width: 1320px;
     padding-top: 2rem;
