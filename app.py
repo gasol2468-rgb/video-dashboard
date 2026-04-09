@@ -874,7 +874,7 @@ left, right = st.columns([1.02, 0.98])
 with left:
     st.markdown('<div class="section-title">最新影片分析</div>', unsafe_allow_html=True)
     st.markdown(f"""
-    <div class="panel">
+    <div class="dark-panel">
         <div class="list-item"><b>最新影片：</b>{latest_info['title']}</div>
         <div class="list-item"><b>類型：</b>{latest_info['type']}</div>
         <div class="list-item"><b>觀看 / 按讚 / 留言：</b>{latest_info['views']:,} / {latest_info['likes']} / {latest_info['comments']}</div>
