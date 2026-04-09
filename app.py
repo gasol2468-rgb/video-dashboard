@@ -201,6 +201,72 @@ div.stButton > button {
     border-radius: 14px !important;
     height: 46px;
     font-weight: 700;
+    background: linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(16,185,129,0.2) 100%) !important;
+    border: 1px solid rgba(96,165,250,0.4) !important;
+    color: #f8fafc !important;
+    transition: all 0.3s ease !important;
+}
+div.stButton > button:hover {
+    background: linear-gradient(135deg, rgba(59,130,246,0.5) 0%, rgba(16,185,129,0.3) 100%) !important;
+    border: 1px solid rgba(96,165,250,0.6) !important;
+    box-shadow: 0 8px 20px rgba(59,130,246,0.3) !important;
+    transform: translateY(-2px) !important;
+}
+div[data-testid="stExpander"] {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 16px !important;
+}
+div[data-testid="stExpanderContent"] {
+    background: rgba(15,23,42,0.4) !important;
+}
+div[data-testid="stDownloadButton"] > button {
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(16,185,129,0.2) 100%) !important;
+    border: 1px solid rgba(96,165,250,0.3) !important;
+    color: #f8fafc !important;
+    font-weight: 600 !important;
+    height: 40px !important;
+    transition: all 0.3s ease !important;
+}
+div[data-testid="stDownloadButton"] > button:hover {
+    background: linear-gradient(135deg, rgba(59,130,246,0.5) 0%, rgba(16,185,129,0.3) 100%) !important;
+    border: 1px solid rgba(96,165,250,0.6) !important;
+    box-shadow: 0 6px 16px rgba(59,130,246,0.25) !important;
+}
+div[data-testid="stSelectbox"] div[data-baseweb="select"] {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 12px !important;
+}
+div[data-testid="stSelectbox"] svg {
+    fill: rgba(96,165,250,0.8) !important;
+}
+div[data-testid="stDataFrame"] {
+    background: rgba(255,255,255,0.05) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+}
+div[data-testid="stDataFrame"] td,
+div[data-testid="stDataFrame"] th {
+    background: transparent !important;
+    color: #f8fafc !important;
+}
+div[data-testid="stDataFrame"] thead {
+    background: rgba(255,255,255,0.08) !important;
+}
+div[data-testid="stSlider"] {
+    color: #f8fafc !important;
+}
+div[data-testid="stSlider"] > div > div > div {
+    background: rgba(255,255,255,0.1) !important;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.metric-card, .hero, .panel, .dark-panel, .reco-box {
+    animation: fadeIn 0.5s ease-out !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -233,6 +299,90 @@ def save_note(note_text: str):
         "text": note_text.strip()
     })
     save_json(NOTES_PATH, notes)
+
+def export_to_csv(df: pd.DataFrame) -> bytes:
+    """匯出為 CSV"""
+    csv_buffer = df.to_csv(index=False, encoding="utf-8-sig")
+    return csv_buffer.encode("utf-8-sig")
+
+def export_to_excel(df: pd.DataFrame) -> bytes:
+    """匯出為 Excel"""
+    from io import BytesIO
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, sheet_name='影片數據', index=False)
+        worksheet = writer.sheets['影片數據']
+        for idx, col in enumerate(df.columns):
+            max_length = max(df[col].astype(str).str.len().max(), len(str(col)))
+            worksheet.column_dimensions[chr(65 + idx)].width = min(max_length + 2, 50)
+    output.seek(0)
+    return output.getvalue()
+
+def create_content_calendar(df: pd.DataFrame) -> pd.DataFrame:
+    """生成內容日曆"""
+    calendar_df = df[["title", "type", "published_at", "views", "engagement_rate"]].copy()
+    calendar_df["published_at"] = calendar_df["published_at"].dt.strftime("%Y-%m-%d %H:%M")
+    calendar_df = calendar_df.sort_values("published_at", ascending=False)
+    return calendar_df
+
+@st.cache_data
+def extract_comments_insights(df: pd.DataFrame) -> dict:
+    """簡單的評論洞察分析"""
+    total_comments = int(df["comments"].sum())
+    avg_comments = round(df["comments"].mean(), 1)
+    max_comments_video = df.loc[df["comments"].idxmax()] if len(df) > 0 else None
+
+    return {
+        "total": total_comments,
+        "average": avg_comments,
+        "top_video": max_comments_video["title"] if max_comments_video is not None else "",
+        "top_count": int(max_comments_video["comments"]) if max_comments_video is not None else 0
+    }
+
+def create_pdf_report(df: pd.DataFrame, summary_dict: dict, title: str = "Tea Creator Report") -> bytes:
+    """生成簡單 PDF 報告"""
+    from io import BytesIO
+    from fpdf import FPDF
+
+    pdf = FPDF()
+    pdf.add_page()
+
+    # 標題
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(0, 10, title, ln=True, align="C")
+    pdf.ln(10)
+
+    # 摘要資訊（使用英文 key）
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 8, "Summary", ln=True)
+    pdf.set_font("Arial", "", 10)
+
+    # 翻譯 key 為英文
+    key_mapping = {
+        "總觀看": "Total Views",
+        "平均互動率": "Avg Engagement Rate",
+        "影片數": "Video Count"
+    }
+
+    for key, value in summary_dict.items():
+        if isinstance(value, (int, float)):
+            display_key = key_mapping.get(key, key)
+            display_value = f"{value:,.0f}" if isinstance(value, (int, float)) else str(value)
+            try:
+                pdf.cell(0, 6, f"{display_key}: {display_value}", ln=True)
+            except:
+                pass
+
+    pdf.ln(5)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 8, f"Total Records: {len(df)}", ln=True)
+
+    buffer = BytesIO()
+    pdf_data = pdf.output()
+    buffer.write(pdf_data)
+    buffer.seek(0)
+
+    return buffer.getvalue()
 
 # =========================
 # 快取
@@ -793,6 +943,106 @@ st.markdown('<div class="section-title">自動腳本推薦</div>', unsafe_allow_
 if st.button("生成下一支自動腳本", width="stretch"):
     auto_script = generate_auto_script_ai(next_idea)
     st.markdown(f'<div class="panel" style="white-space:pre-wrap;line-height:1.9;">{auto_script}</div>', unsafe_allow_html=True)
+
+# =========================
+# 數據導出
+# =========================
+st.markdown('<div style="margin: 32px 0;"></div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📥 數據導出</div>', unsafe_allow_html=True)
+
+exp_col1, exp_col2, exp_col3 = st.columns([1, 1, 1])
+
+with exp_col1:
+    csv_data = export_to_csv(filtered_df[["title", "type", "views", "likes", "comments", "engagement_rate", "published_at"]])
+    st.download_button(
+        label="📊 下載 CSV",
+        data=csv_data,
+        file_name=f"video_data_{pd.Timestamp.now().strftime('%Y%m%d')}.csv",
+        mime="text/csv",
+        width="stretch"
+    )
+
+with exp_col2:
+    excel_data = export_to_excel(filtered_df[["title", "type", "views", "likes", "comments", "engagement_rate", "published_at"]])
+    st.download_button(
+        label="📋 下載 Excel",
+        data=excel_data,
+        file_name=f"video_data_{pd.Timestamp.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        width="stretch"
+    )
+
+with exp_col3:
+    summary = {
+        "總觀看": int(filtered_df["views"].sum()),
+        "平均互動率": round(filtered_df["engagement_rate"].mean(), 2),
+        "影片數": len(filtered_df)
+    }
+    pdf_data = create_pdf_report(filtered_df, summary)
+    st.download_button(
+        label="📄 下載 PDF",
+        data=pdf_data,
+        file_name=f"report_{pd.Timestamp.now().strftime('%Y%m%d')}.pdf",
+        mime="application/pdf",
+        width="stretch"
+    )
+
+# =========================
+# 內容日曆
+# =========================
+st.markdown('<div class="section-title">📅 內容發布日曆</div>', unsafe_allow_html=True)
+
+with st.expander("查看內容日曆", expanded=False):
+    calendar_df = create_content_calendar(filtered_df)
+    if len(calendar_df) > 0:
+        cal_display = calendar_df[["published_at", "title", "type", "views", "engagement_rate"]].rename(
+            columns={
+                "published_at": "發布時間",
+                "title": "影片標題",
+                "type": "類型",
+                "views": "觀看數",
+                "engagement_rate": "互動率(%)"
+            }
+        )
+        st.dataframe(cal_display, width="stretch", hide_index=True)
+    else:
+        st.info("沒有內容日曆數據")
+
+# =========================
+# 評論分析
+# =========================
+st.markdown('<div class="section-title">💬 評論分析</div>', unsafe_allow_html=True)
+
+comment_insights = extract_comments_insights(filtered_df)
+
+col_comment1, col_comment2, col_comment3 = st.columns(3)
+
+with col_comment1:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-label">總留言數</div>
+        <div class="metric-number">{comment_insights['total']:,}</div>
+        <div class="metric-note">所有影片的留言總計</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_comment2:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-label">平均留言</div>
+        <div class="metric-number">{comment_insights['average']}</div>
+        <div class="metric-note">每支影片平均留言數</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_comment3:
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-label">留言最多</div>
+        <div class="metric-note" style="font-size:13px;line-height:1.4;">{comment_insights['top_video'][:25]}...</div>
+        <div class="metric-note" style="font-size:12px;color:#8b5cf6;margin-top:8px;">{comment_insights['top_count']} 則留言</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # =========================
 # 手動分類
