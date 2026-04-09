@@ -8,13 +8,18 @@ import plotly.express as px
 import plotly.graph_objects as go
 import requests
 import streamlit as st
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from openai import OpenAI
 
 # =========================
 # 基本設定
 # =========================
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
+
+# Streamlit Cloud Secrets 支援
+for _key in ["YOUTUBE_API_KEY", "YOUTUBE_CHANNEL_ID", "OPENAI_API_KEY"]:
+    if _key in st.secrets and not os.environ.get(_key):
+        os.environ[_key] = st.secrets[_key]
 
 st.set_page_config(
     page_title="茶葉創作者總控台",
@@ -1487,6 +1492,14 @@ if sync_now:
             st.error("同步失敗，已改用快取資料")
             st.code(str(e))
 
+with st.expander("⚙️ 環境變數檢查"):
+    _env_path = Path(__file__).resolve().parent / ".env"
+    st.write(".env 路徑：", str(_env_path))
+    st.write(".env 是否存在：", _env_path.exists())
+    st.write("YOUTUBE_API_KEY 是否有讀到：", bool(YOUTUBE_API_KEY))
+    st.write("YOUTUBE_CHANNEL_ID：", YOUTUBE_CHANNEL_ID)
+    st.write("OPENAI_API_KEY 是否有讀到：", bool(OPENAI_API_KEY))
+
 with status_col:
     if cache_saved_at:
         st.markdown(f"""
@@ -2424,8 +2437,3 @@ st.markdown(f"""
 </table>
 </div>
 """, unsafe_allow_html=True)
-
-with st.expander("⚙️ 環境變數檢查"):
-    st.write("YOUTUBE_API_KEY 是否有讀到：", bool(YOUTUBE_API_KEY))
-    st.write("YOUTUBE_CHANNEL_ID：", YOUTUBE_CHANNEL_ID)
-    st.write("OPENAI_API_KEY 是否有讀到：", bool(OPENAI_API_KEY))
