@@ -736,10 +736,6 @@ st.markdown("""
 <div class="hero">
     <div class="hero-kicker">Tea Creator Control Center</div>
     <div class="hero-title">🎬 茶葉創作者總控台</div>
-    <div class="hero-sub">
-        這版已改成省 quota 模式：<br>
-        平常先看快取資料，只有按同步才會打 YouTube API。
-    </div>
 </div>
 """, unsafe_allow_html=True)
 
