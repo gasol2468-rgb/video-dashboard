@@ -6,4 +6,4 @@ python-dotenv>=1.0
 plotly>=5.17
 fpdf2>=2.7
 jieba>=0.42
-openpyxl>=3.10
+openpyxl>=3.1
