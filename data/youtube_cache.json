@@ -1,56 +1,109 @@
 {
-  "saved_at": "2026-04-05 15:37:19",
+  "saved_at": "2026-04-09 16:30:04",
   "rows": [
+    {
+      "video_id": "rngAKrh2TYM",
+      "title": "顛覆你對茶包的印象 完全不苦澀的GABA茶",
+      "published_at": "2026-04-08 09:12:39",
+      "url": "https://www.youtube.com/watch?v=rngAKrh2TYM",
+      "thumbnail": "https://i.ytimg.com/vi/rngAKrh2TYM/mqdefault.jpg",
+      "views": 1955,
+      "likes": 16,
+      "comments": 0,
+      "engagement": 16,
+      "engagement_rate": 0.82
+    },
+    {
+      "video_id": "hnMyO5oH8Z8",
+      "title": "聚鑫董事長揭秘製茶工序",
+      "published_at": "2026-04-07 09:19:36",
+      "url": "https://www.youtube.com/watch?v=hnMyO5oH8Z8",
+      "thumbnail": "https://i.ytimg.com/vi/hnMyO5oH8Z8/mqdefault.jpg",
+      "views": 1627,
+      "likes": 21,
+      "comments": 1,
+      "engagement": 22,
+      "engagement_rate": 1.35
+    },
+    {
+      "video_id": "4ByydvcoTrM",
+      "title": "梨山聚鑫春茶預購",
+      "published_at": "2026-04-07 08:04:29",
+      "url": "https://www.youtube.com/watch?v=4ByydvcoTrM",
+      "thumbnail": "https://i.ytimg.com/vi/4ByydvcoTrM/mqdefault.jpg",
+      "views": 678,
+      "likes": 10,
+      "comments": 0,
+      "engagement": 10,
+      "engagement_rate": 1.47
+    },
+    {
+      "video_id": "L4fN-gUGDa0",
+      "title": "【民視專訪梨山聚鑫】勇奪法國國際茶葉大賽金獎",
+      "published_at": "2026-04-07 07:35:42",
+      "url": "https://www.youtube.com/watch?v=L4fN-gUGDa0",
+      "thumbnail": "https://i.ytimg.com/vi/L4fN-gUGDa0/mqdefault.jpg",
+      "views": 66,
+      "likes": 2,
+      "comments": 0,
+      "engagement": 2,
+      "engagement_rate": 3.03
+    },
     {
       "video_id": "G1NjyaFYV2k",
       "title": "【聚鑫情4】潔西卡復活",
       "published_at": "2026-04-01 05:52:10",
       "url": "https://www.youtube.com/watch?v=G1NjyaFYV2k",
-      "views": 303,
+      "thumbnail": "https://i.ytimg.com/vi/G1NjyaFYV2k/mqdefault.jpg",
+      "views": 307,
       "likes": 2,
       "comments": 0,
       "engagement": 2,
-      "engagement_rate": 0.66
+      "engagement_rate": 0.65
     },
     {
       "video_id": "b5tZLUT6oEU",
       "title": "【聚鑫情3】潔西卡身世",
       "published_at": "2026-04-01 05:45:05",
       "url": "https://www.youtube.com/watch?v=b5tZLUT6oEU",
-      "views": 1376,
+      "thumbnail": "https://i.ytimg.com/vi/b5tZLUT6oEU/mqdefault.jpg",
+      "views": 1383,
       "likes": 6,
       "comments": 0,
       "engagement": 6,
-      "engagement_rate": 0.44
+      "engagement_rate": 0.43
     },
     {
       "video_id": "DtucQg6Wvbk",
       "title": "【聚鑫情2】潔西卡被抓",
       "published_at": "2026-04-01 05:38:37",
       "url": "https://www.youtube.com/watch?v=DtucQg6Wvbk",
-      "views": 379,
-      "likes": 3,
+      "thumbnail": "https://i.ytimg.com/vi/DtucQg6Wvbk/mqdefault.jpg",
+      "views": 390,
+      "likes": 4,
       "comments": 0,
-      "engagement": 3,
-      "engagement_rate": 0.79
+      "engagement": 4,
+      "engagement_rate": 1.03
     },
     {
       "video_id": "LK1KInk9-M0",
       "title": "【聚鑫情1】冬茶大結局",
       "published_at": "2026-04-01 05:34:04",
       "url": "https://www.youtube.com/watch?v=LK1KInk9-M0",
-      "views": 313,
+      "thumbnail": "https://i.ytimg.com/vi/LK1KInk9-M0/mqdefault.jpg",
+      "views": 321,
       "likes": 3,
       "comments": 0,
       "engagement": 3,
-      "engagement_rate": 0.96
+      "engagement_rate": 0.93
     },
     {
       "video_id": "Tb5H9vB7yQI",
       "title": "日本抹茶道初體驗",
       "published_at": "2026-04-01 03:58:52",
       "url": "https://www.youtube.com/watch?v=Tb5H9vB7yQI",
-      "views": 30,
+      "thumbnail": "https://i.ytimg.com/vi/Tb5H9vB7yQI/mqdefault.jpg",
+      "views": 35,
       "likes": 0,
       "comments": 0,
       "engagement": 0,
@@ -61,7 +114,8 @@
       "title": "三月在賣高海拔春茶一定是假的？！",
       "published_at": "2026-04-01 03:50:02",
       "url": "https://www.youtube.com/watch?v=gXIjcHpF7pQ",
-      "views": 1400,
+      "thumbnail": "https://i.ytimg.com/vi/gXIjcHpF7pQ/mqdefault.jpg",
+      "views": 1405,
       "likes": 15,
       "comments": 0,
       "engagement": 15,
@@ -72,10 +126,11 @@
       "title": "IMG_3873_2025-12-03_17-13-34.MOV",
       "published_at": "2026-04-01 03:16:36",
       "url": "https://www.youtube.com/watch?v=a-2jL7LEBfg",
-      "views": 8822,
+      "thumbnail": "https://i.ytimg.com/vi/a-2jL7LEBfg/mqdefault.jpg",
+      "views": 9130,
       "likes": 24,
-      "comments": 1,
-      "engagement": 25,
+      "comments": 2,
+      "engagement": 26,
       "engagement_rate": 0.28
     },
     {
@@ -83,55 +138,12 @@
       "title": "梨山春茶正式開放預購",
       "published_at": "2026-04-01 03:13:08",
       "url": "https://www.youtube.com/watch?v=k316WdC5AFc",
-      "views": 1491,
+      "thumbnail": "https://i.ytimg.com/vi/k316WdC5AFc/mqdefault.jpg",
+      "views": 1501,
       "likes": 19,
       "comments": 4,
       "engagement": 23,
-      "engagement_rate": 1.54
-    },
-    {
-      "video_id": "BLHg-3FGOtE",
-      "title": "以後請叫他得獎茶農小謝",
-      "published_at": "2026-04-01 02:58:59",
-      "url": "https://www.youtube.com/watch?v=BLHg-3FGOtE",
-      "views": 1070,
-      "likes": 22,
-      "comments": 6,
-      "engagement": 28,
-      "engagement_rate": 2.62
-    },
-    {
-      "video_id": "pWvRjdVOdJQ",
-      "title": "給大家看一下執行長小謝去東京玩什麼",
-      "published_at": "2026-03-17 03:31:39",
-      "url": "https://www.youtube.com/watch?v=pWvRjdVOdJQ",
-      "views": 223,
-      "likes": 1,
-      "comments": 0,
-      "engagement": 1,
-      "engagement_rate": 0.45
-    },
-    {
-      "video_id": "QJNLQV7LxdM",
-      "title": "茶/查AI說什麼？！",
-      "published_at": "2026-03-06 03:27:40",
-      "url": "https://www.youtube.com/watch?v=QJNLQV7LxdM",
-      "views": 1411,
-      "likes": 13,
-      "comments": 2,
-      "engagement": 15,
-      "engagement_rate": 1.06
-    },
-    {
-      "video_id": "qRZAPwAbBrs",
-      "title": "一片葉子，如何改變一座島嶼的命運？重現 1869 福爾摩沙茶金歲月【台灣茶歷史 Ep.1】",
-      "published_at": "2026-02-25 07:42:03",
-      "url": "https://www.youtube.com/watch?v=qRZAPwAbBrs",
-      "views": 56,
-      "likes": 3,
-      "comments": 0,
-      "engagement": 3,
-      "engagement_rate": 5.36
+      "engagement_rate": 1.53
     }
   ]
 }

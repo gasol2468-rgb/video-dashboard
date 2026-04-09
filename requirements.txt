@@ -1,5 +1,9 @@
-streamlit
-pandas
-requests
-openai
-python-dotenv
+streamlit>=1.28
+pandas>=2.0
+requests>=2.31
+openai>=1.0
+python-dotenv>=1.0
+plotly>=5.17
+fpdf2>=2.7
+jieba>=0.42
+openpyxl>=3.10
