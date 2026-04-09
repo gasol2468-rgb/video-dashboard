@@ -44,153 +44,187 @@ html, body, [class*="css"] {
 }
 .stApp {
     background:
-        radial-gradient(circle at top left, rgba(59,130,246,0.10), transparent 22%),
+        radial-gradient(circle at top left, rgba(59,130,246,0.12), transparent 22%),
         radial-gradient(circle at top right, rgba(16,185,129,0.08), transparent 18%),
-        linear-gradient(180deg, #04070c 0%, #0b1220 45%, #0f172a 100%);
+        radial-gradient(circle at bottom, rgba(96,165,250,0.05), transparent 80%),
+        linear-gradient(180deg, #03050a 0%, #0a0f1e 40%, #0d1629 75%, #0f172a 100%);
     color: #f8fafc;
 }
 .block-container {
     max-width: 1280px;
-    padding-top: 1.4rem;
-    padding-bottom: 3rem;
+    padding-top: 1.6rem;
+    padding-bottom: 3.5rem;
 }
 .hero {
-    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 30px;
-    padding: 34px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 32px;
+    padding: 42px;
     color: white;
-    backdrop-filter: blur(16px);
-    box-shadow: 0 24px 48px rgba(0,0,0,0.30);
-    margin-bottom: 22px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 32px 64px rgba(0,0,0,0.40);
+    margin-bottom: 28px;
 }
 .hero-kicker {
     font-size: 12px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #bfdbfe;
-    margin-bottom: 10px;
+    font-weight: 600;
+    color: #60A5FA;
+    margin-bottom: 12px;
+    opacity: 0.95;
 }
 .hero-title {
-    font-size: 40px;
+    font-size: 48px;
     font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 12px;
+    line-height: 1.0;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+    color: #ffffff;
 }
 .hero-sub {
-    color: #dbeafe;
-    font-size: 15px;
-    line-height: 1.95;
+    color: #E2E8F0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
 }
 .section-title {
-    font-size: 24px;
-    font-weight: 800;
-    color: #f8fafc;
-    margin: 10px 0 14px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 12px 0 16px 0;
+    letter-spacing: -0.01em;
 }
 .metric-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px;
-    padding: 20px;
-    min-height: 152px;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.22);
+    background: linear-gradient(135deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 28px;
+    padding: 24px;
+    min-height: 160px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.28);
+    transition: all 0.3s ease;
+}
+.metric-card:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.05) 100%);
+    border: 1px solid rgba(96,165,250,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.32);
 }
 .metric-label {
-    font-size: 12px;
-    letter-spacing: 0.08em;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #94a3b8;
-    margin-bottom: 8px;
+    font-weight: 600;
+    color: #94A3B8;
+    margin-bottom: 10px;
+    opacity: 0.9;
 }
 .metric-number {
-    font-size: 30px;
+    font-size: 42px;
     font-weight: 800;
     color: #ffffff;
-    line-height: 1.1;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
 }
 .metric-note {
     font-size: 14px;
-    color: #cbd5e1;
-    margin-top: 10px;
-    line-height: 1.8;
+    font-weight: 500;
+    color: #CBD5E1;
+    margin-top: 12px;
+    line-height: 1.6;
 }
 .panel {
     background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.92) 100%);
-    color: #0f172a;
-    border-radius: 24px;
-    padding: 22px;
-    box-shadow: 0 16px 34px rgba(0,0,0,0.18);
-    margin-bottom: 18px;
+    color: #0d1629;
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.20);
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.8);
 }
 .dark-panel {
-    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.068) 0%, rgba(255,255,255,0.035) 100%);
     color: #f8fafc;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px;
-    padding: 22px;
-    box-shadow: 0 16px 34px rgba(0,0,0,0.22);
-    margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.28);
+    margin-bottom: 20px;
 }
 .list-item {
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(15,23,42,0.08);
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
     font-size: 15px;
-    line-height: 1.9;
+    font-weight: 500;
+    line-height: 1.75;
+    color: #F1F5F9;
 }
 .list-item:last-child {
     border-bottom: none;
 }
+.list-item b {
+    color: #ffffff;
+    font-weight: 600;
+}
 .badge-green, .badge-yellow, .badge-red, .badge-blue {
     display: inline-block;
-    padding: 7px 12px;
+    padding: 8px 14px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.05em;
 }
-.badge-green { background: rgba(52,211,153,0.16); color: #86efac; }
-.badge-yellow { background: rgba(251,191,36,0.16); color: #fde68a; }
-.badge-red { background: rgba(248,113,113,0.16); color: #fecaca; }
-.badge-blue { background: rgba(96,165,250,0.16); color: #bfdbfe; }
+.badge-green { background: rgba(52,211,153,0.18); color: #86efac; border: 1px solid rgba(52,211,153,0.3); }
+.badge-yellow { background: rgba(251,191,36,0.18); color: #fde68a; border: 1px solid rgba(251,191,36,0.3); }
+.badge-red { background: rgba(248,113,113,0.18); color: #fecaca; border: 1px solid rgba(248,113,113,0.3); }
+.badge-blue { background: rgba(96,165,250,0.18); color: #93c5fd; border: 1px solid rgba(96,165,250,0.3); }
 .reco-box {
-    background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 26px;
-    padding: 24px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.28);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+    border: 1px solid rgba(96,165,250,0.25);
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.35);
     color: white;
 }
 .reco-title {
-    font-size: 12px;
-    letter-spacing: 0.10em;
+    font-size: 11px;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #93c5fd;
-    margin-bottom: 10px;
+    font-weight: 700;
+    color: #60A5FA;
+    margin-bottom: 12px;
 }
 .reco-main {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
-    line-height: 1.55;
-    margin-bottom: 12px;
+    line-height: 1.3;
+    margin-bottom: 14px;
+    color: #ffffff;
+    letter-spacing: -0.01em;
 }
 .reco-sub {
     font-size: 15px;
-    color: #e5e7eb;
-    line-height: 1.95;
+    font-weight: 500;
+    color: #e2e8f0;
+    line-height: 1.8;
+    letter-spacing: 0.005em;
 }
 .note-chip {
     display: inline-block;
-    background: #e2e8f0;
-    color: #334155;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    color: #064e3b;
     border-radius: 999px;
-    padding: 6px 10px;
+    padding: 7px 12px;
     font-size: 12px;
+    font-weight: 600;
     margin-bottom: 10px;
 }
 div[data-testid="stDataFrame"] {
-    background: rgba(255,255,255,0.96);
-    border-radius: 18px;
-    padding: 6px;
+    background: rgba(255,255,255,0.04) !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    overflow: hidden !important;
 }
 div[data-testid="stTextInput"] input,
 div[data-testid="stTextArea"] textarea,
@@ -198,75 +232,93 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
     border-radius: 14px !important;
 }
 div.stButton > button {
-    border-radius: 14px !important;
-    height: 46px;
-    font-weight: 700;
-    background: linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(16,185,129,0.2) 100%) !important;
+    border-radius: 12px !important;
+    height: 44px !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, rgba(96,165,250,0.35) 0%, rgba(52,211,153,0.22) 100%) !important;
     border: 1px solid rgba(96,165,250,0.4) !important;
     color: #f8fafc !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
 }
 div.stButton > button:hover {
-    background: linear-gradient(135deg, rgba(59,130,246,0.5) 0%, rgba(16,185,129,0.3) 100%) !important;
+    background: linear-gradient(135deg, rgba(96,165,250,0.5) 0%, rgba(52,211,153,0.3) 100%) !important;
     border: 1px solid rgba(96,165,250,0.6) !important;
-    box-shadow: 0 8px 20px rgba(59,130,246,0.3) !important;
+    box-shadow: 0 12px 24px rgba(96,165,250,0.35) !important;
     transform: translateY(-2px) !important;
 }
 div[data-testid="stExpander"] {
-    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 100%) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.035) 100%) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
     border-radius: 16px !important;
 }
 div[data-testid="stExpanderContent"] {
-    background: rgba(15,23,42,0.4) !important;
+    background: rgba(15,23,42,0.35) !important;
+    border-top: 1px solid rgba(255,255,255,0.05) !important;
 }
 div[data-testid="stDownloadButton"] > button {
     border-radius: 12px !important;
-    background: linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(16,185,129,0.2) 100%) !important;
-    border: 1px solid rgba(96,165,250,0.3) !important;
+    background: linear-gradient(135deg, rgba(96,165,250,0.32) 0%, rgba(52,211,153,0.2) 100%) !important;
+    border: 1px solid rgba(96,165,250,0.35) !important;
     color: #f8fafc !important;
     font-weight: 600 !important;
-    height: 40px !important;
-    transition: all 0.3s ease !important;
+    height: 42px !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-size: 14px !important;
 }
 div[data-testid="stDownloadButton"] > button:hover {
-    background: linear-gradient(135deg, rgba(59,130,246,0.5) 0%, rgba(16,185,129,0.3) 100%) !important;
-    border: 1px solid rgba(96,165,250,0.6) !important;
-    box-shadow: 0 6px 16px rgba(59,130,246,0.25) !important;
+    background: linear-gradient(135deg, rgba(96,165,250,0.48) 0%, rgba(52,211,153,0.28) 100%) !important;
+    border: 1px solid rgba(96,165,250,0.55) !important;
+    box-shadow: 0 10px 20px rgba(96,165,250,0.28) !important;
 }
 div[data-testid="stSelectbox"] div[data-baseweb="select"] {
-    background: rgba(255,255,255,0.06) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
     border-radius: 12px !important;
 }
 div[data-testid="stSelectbox"] svg {
-    fill: rgba(96,165,250,0.8) !important;
+    fill: rgba(96,165,250,0.85) !important;
 }
 div[data-testid="stDataFrame"] {
-    background: rgba(255,255,255,0.05) !important;
-    border-radius: 16px !important;
+    background: rgba(255,255,255,0.04) !important;
+    border-radius: 18px !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
+    overflow: hidden !important;
 }
 div[data-testid="stDataFrame"] td,
 div[data-testid="stDataFrame"] th {
     background: transparent !important;
-    color: #f8fafc !important;
+    color: #f1f5f9 !important;
+    font-weight: 500 !important;
+    border: none !important;
 }
 div[data-testid="stDataFrame"] thead {
-    background: rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.10) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+div[data-testid="stDataFrame"] tbody tr:hover {
+    background: rgba(96,165,250,0.08) !important;
 }
 div[data-testid="stSlider"] {
     color: #f8fafc !important;
 }
 div[data-testid="stSlider"] > div > div > div {
-    background: rgba(255,255,255,0.1) !important;
+    background: rgba(255,255,255,0.12) !important;
 }
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 .metric-card, .hero, .panel, .dark-panel, .reco-box {
     animation: fadeIn 0.5s ease-out !important;
+}
+.list-item {
+    animation: slideIn 0.3s ease-out !important;
 }
 </style>
 """, unsafe_allow_html=True)
